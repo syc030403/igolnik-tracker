@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import AdSlot from "@/components/AdSlot";
+import DataError from "@/components/DataError";
 import AmmoView from "@/components/ammo/AmmoView";
 import { getAmmoGroups } from "@/lib/tarkov/ammo";
+import type { AmmoGroup } from "@/lib/tarkov/types";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -17,7 +19,13 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function AmmoPage() {
-  const groups = await getAmmoGroups();
+  // API 일시 장애가 빌드·페이지를 죽이면 안 된다 — 폴백 렌더 후 다음 ISR 주기에 복구
+  let groups: AmmoGroup[] | null = null;
+  try {
+    groups = await getAmmoGroups();
+  } catch {
+    groups = null;
+  }
 
   return (
     <>
@@ -26,7 +34,7 @@ export default async function AmmoPage() {
       </div>
       <main className={styles.main}>
         <h1 className={styles.srOnly}>타르코프 탄약 성능표 — 캘리버별 관통력·데미지</h1>
-        <AmmoView groups={groups} />
+        {groups ? <AmmoView groups={groups} /> : <DataError />}
       </main>
     </>
   );

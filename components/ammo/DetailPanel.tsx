@@ -68,7 +68,7 @@ function TradableMarket({ ammo }: { ammo: AmmoEntry }) {
     <>
       <div className={styles.priceHead}>
         <div>
-          <div className={styles.priceLabel}>벼룩시장 현재가</div>
+          <div className={styles.priceLabel}>플리마켓 현재가</div>
           <div className={styles.priceRow}>
             <span className={styles.price}>{fmtRub(ammo.lastLowPrice)}</span>
             {change != null && (
@@ -91,12 +91,12 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
   return (
     <>
       {ammo.pack ? (
-        // 팩이 벼룩 거래되면 시세를 보여주는 게 맞다 — 빨간 뱃지 대신 안내만
+        // 팩이 플리마켓 거래되면 시세를 보여주는 게 맞다 — 빨간 뱃지 대신 안내만
         <PackMarket pack={ammo.pack} />
       ) : (
         <div className={styles.bannedBadge}>
           <span className={styles.bannedDot} aria-hidden />
-          <span className={styles.bannedText}>벼룩시장 거래 불가</span>
+          <span className={styles.bannedText}>플리마켓 거래 불가</span>
         </div>
       )}
       <div className={styles.sourceTitle}>획득처</div>
@@ -145,7 +145,7 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
   );
 }
 
-/** 탄약 팩 시세 — 팩은 벼룩 거래 가능하고 PvP/PvE 가격이 다르다 */
+/** 탄약 팩 시세 — 팩은 플리마켓 거래 가능하고 PvP/PvE 가격이 다르다 */
 function PackMarket({ pack }: { pack: AmmoPackInfo }) {
   const [mode, setMode] = useState<GameMode>("regular");
   const price = mode === "pve" ? pack.pve : pack.pvp;
@@ -155,7 +155,7 @@ function PackMarket({ pack }: { pack: AmmoPackInfo }) {
 
   return (
     <div className={styles.packSection}>
-      <div className={styles.packNote}>단품은 벼룩 거래 불가 · 탄약 팩 기준 시세</div>
+      <div className={styles.packNote}>단품은 플리마켓 거래 불가 · 탄약 팩 기준 시세</div>
       <div className={styles.priceHead}>
         <div>
           <div className={styles.priceLabel}>탄약 팩 시세 ({pack.count}발)</div>
