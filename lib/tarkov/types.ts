@@ -21,6 +21,24 @@ export interface CraftSource {
   requiredItems: { count: number; name: string }[];
 }
 
+/** 게임모드별 벼룩시장 시세 스냅샷 */
+export interface ModePrice {
+  lastLowPrice: number | null;
+  changeLast48hPercent: number | null;
+}
+
+/**
+ * 탄약 팩(ammoBox) 시세. 탄약 단품은 벼룩 거래 금지지만
+ * 팩은 거래 가능하며 PvP/PvE 가격이 다르다.
+ */
+export interface AmmoPackInfo {
+  id: string;
+  name: string;
+  count: number;
+  pvp: ModePrice;
+  pve: ModePrice;
+}
+
 export interface AmmoEntry {
   id: string;
   /** 표시용 캘리버 (예: "5.45×39") */
@@ -46,6 +64,8 @@ export interface AmmoEntry {
   traderPrices: TraderPrice[];
   barters: BarterSource[];
   crafts: CraftSource[];
+  /** 벼룩 거래 가능한 탄약 팩 (없으면 null) */
+  pack: AmmoPackInfo | null;
 }
 
 export interface AmmoGroup {

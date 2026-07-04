@@ -12,7 +12,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export const revalidate = 3600;
+// 탄약 스펙 fetch는 자체적으로 1시간 캐시되고,
+// 상세 패널의 팩 시세(5분 캐시)를 위해 페이지는 5분마다 재생성한다
+export const revalidate = 300;
 
 export default async function AmmoPage() {
   const groups = await getAmmoGroups();

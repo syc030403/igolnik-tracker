@@ -233,6 +233,28 @@
   text-transform: uppercase;
 }
 
+.packSection {
+  padding: 10px 0 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--row-line);
+}
+
+.perRound {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.modeTabs {
+  display: flex;
+  border: 1px solid var(--gold);
+  border-radius: 2px;
+  overflow: hidden;
+  flex: none;
+  align-self: flex-start;
+}
+
 .sourceTitle {
   font-family: var(--font-display);
   font-size: 10px;
