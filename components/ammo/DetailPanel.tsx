@@ -62,8 +62,6 @@ export default function DetailPanel({ ammo }: { ammo: AmmoEntry }) {
 }
 
 function TradableMarket({ ammo }: { ammo: AmmoEntry }) {
-  const change = ammo.changeLast48hPercent;
-  const up = (change ?? 0) >= 0;
   return (
     <>
       <div className={styles.priceHead}>
@@ -71,12 +69,6 @@ function TradableMarket({ ammo }: { ammo: AmmoEntry }) {
           <div className={styles.priceLabel}>플리마켓 현재가</div>
           <div className={styles.priceRow}>
             <span className={styles.price}>{fmtRub(ammo.lastLowPrice)}</span>
-            {change != null && (
-              <span className={up ? styles.changeUp : styles.changeDown}>
-                {fmtChangePercent(change)}
-                <span className={styles.changePeriod}>48H</span>
-              </span>
-            )}
           </div>
         </div>
       </div>
@@ -150,7 +142,6 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
 function PackMarket({ pack }: { pack: AmmoPackInfo }) {
   const [mode, setMode] = useState<GameMode>("regular");
   const price = mode === "pve" ? pack.pve : pack.pvp;
-  const up = (price.changeLast48hPercent ?? 0) >= 0;
   const perRound =
     price.lastLowPrice != null ? Math.round(price.lastLowPrice / pack.count) : null;
 
@@ -162,12 +153,6 @@ function PackMarket({ pack }: { pack: AmmoPackInfo }) {
           <div className={styles.priceLabel}>탄약 팩 시세 ({pack.count}발)</div>
           <div className={styles.priceRow}>
             <span className={styles.price}>{fmtRub(price.lastLowPrice)}</span>
-            {price.changeLast48hPercent != null && (
-              <span className={up ? styles.changeUp : styles.changeDown}>
-                {fmtChangePercent(price.changeLast48hPercent)}
-                <span className={styles.changePeriod}>48H</span>
-              </span>
-            )}
           </div>
           {perRound != null && (
             <div className={styles.perRound}>발당 {fmtRub(perRound)}</div>

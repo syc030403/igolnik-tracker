@@ -159,13 +159,20 @@
   letter-spacing: 0.04em;
 }
 
+.rangeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
 .rangeTabs {
   display: flex;
   border: 1px solid var(--border-4);
   border-radius: 2px;
   overflow: hidden;
   width: fit-content;
-  margin-bottom: 9px;
 }
 
 .rangeTab,

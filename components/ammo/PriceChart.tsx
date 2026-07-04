@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { fmtRub, fmtRubCompact } from "@/lib/format";
+import { fmtChangePercent, fmtRub, fmtRubCompact } from "@/lib/format";
 import type { GameMode, PricePoint } from "@/lib/tarkov/types";
 import styles from "./DetailPanel.module.css";
 
@@ -51,18 +51,48 @@ export default function PriceChart({
   const trendUp = points && points.length >= 2 ? points[points.length - 1].price >= points[0].price : true;
   const color = trendUp ? "var(--up)" : "var(--down)";
 
+  // 탭별 변동률: 24H는 직전 시세 대비, 7D는 하루 전 대비
+  const change = useMemo(() => {
+    if (!points || points.length < 2) return null;
+    const last = points[points.length - 1];
+    let base: PricePoint;
+    if (range === "24h") {
+      base = points[points.length - 2];
+    } else {
+      const target = last.timestamp - 86_400_000;
+      base = points.reduce(
+        (best, p) =>
+          Math.abs(p.timestamp - target) < Math.abs(best.timestamp - target) ? p : best,
+        points[0],
+      );
+    }
+    if (!base.price) return null;
+    return {
+      pct: ((last.price - base.price) / base.price) * 100,
+      label: range === "24h" ? "직전 대비" : "1일 전 대비",
+    };
+  }, [points, range]);
+
   return (
     <>
-      <div className={styles.rangeTabs}>
-        {(["24h", "7d"] as const).map((r) => (
-          <button
-            key={r}
-            className={range === r ? styles.rangeTabActive : styles.rangeTab}
-            onClick={() => setRange(r)}
-          >
-            {r === "24h" ? "24H" : "7일"}
-          </button>
-        ))}
+      <div className={styles.rangeRow}>
+        <div className={styles.rangeTabs}>
+          {(["24h", "7d"] as const).map((r) => (
+            <button
+              key={r}
+              className={range === r ? styles.rangeTabActive : styles.rangeTab}
+              onClick={() => setRange(r)}
+            >
+              {r === "24h" ? "24H" : "7D"}
+            </button>
+          ))}
+        </div>
+        {change && (
+          <span className={change.pct >= 0 ? styles.changeUp : styles.changeDown}>
+            {fmtChangePercent(change.pct)}
+            <span className={styles.changePeriod}>{change.label}</span>
+          </span>
+        )}
       </div>
       {failed || (points && points.length < 2) ? (
         <div className={styles.chartEmpty}>가격 이력 데이터 없음</div>
