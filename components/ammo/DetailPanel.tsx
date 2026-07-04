@@ -90,11 +90,15 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
 
   return (
     <>
-      <div className={styles.bannedBadge}>
-        <span className={styles.bannedDot} aria-hidden />
-        <span className={styles.bannedText}>벼룩시장 거래 불가 (단품)</span>
-      </div>
-      {ammo.pack && <PackMarket pack={ammo.pack} />}
+      {ammo.pack ? (
+        // 팩이 벼룩 거래되면 시세를 보여주는 게 맞다 — 빨간 뱃지 대신 안내만
+        <PackMarket pack={ammo.pack} />
+      ) : (
+        <div className={styles.bannedBadge}>
+          <span className={styles.bannedDot} aria-hidden />
+          <span className={styles.bannedText}>벼룩시장 거래 불가</span>
+        </div>
+      )}
       <div className={styles.sourceTitle}>획득처</div>
       {!hasSources && <div className={styles.noSource}>현재 확인된 획득처 없음</div>}
       {ammo.traderPrices.map((t, i) => (
@@ -151,6 +155,7 @@ function PackMarket({ pack }: { pack: AmmoPackInfo }) {
 
   return (
     <div className={styles.packSection}>
+      <div className={styles.packNote}>단품은 벼룩 거래 불가 · 탄약 팩 기준 시세</div>
       <div className={styles.priceHead}>
         <div>
           <div className={styles.priceLabel}>탄약 팩 시세 ({pack.count}발)</div>

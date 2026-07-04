@@ -122,6 +122,7 @@ const PACKS_QUERY = /* GraphQL */ `
       name
       types
       lastLowPrice
+      lastOfferCount
       changeLast48hPercent
       containsItems {
         count
@@ -138,13 +139,16 @@ interface RawPack {
   name: string;
   types: string[];
   lastLowPrice: number | null;
+  lastOfferCount: number | null;
   changeLast48hPercent: number | null;
   containsItems: { count: number; item: { id: string } }[] | null;
 }
 
 /**
  * 탄약 단품 id → 벼룩 거래 가능한 팩 시세 매핑.
- * 팩이 여러 용량이면 가격이 잡히는 것 중 최대 용량을 쓴다.
+ * 같은 탄약의 팩이 여러 개인 경우가 있다 (용량 차이 + 데이터가 빈 유령 중복까지).
+ * 가격이 전무한 팩은 버리고, 남은 것 중 호가 수(유동성)가 가장 많은 팩을 대표로 쓴다
+ * — 최대 용량 기준은 호가 1개짜리 비유동 팩의 튀는 가격을 집어올 수 있다.
  * 시세는 부가 정보라 실패해도 탄약표 자체는 떠야 한다 → null 폴백.
  */
 async function getPackMap(): Promise<Map<string, AmmoPackInfo>> {
@@ -156,7 +160,10 @@ async function getPackMap(): Promise<Map<string, AmmoPackInfo>> {
       ),
     );
     const pveById = new Map(pve.items.map((p) => [p.id, p]));
-    const candidates = new Map<string, { pack: RawPack; count: number; pvePrice: ModePrice }[]>();
+    const candidates = new Map<
+      string,
+      { pack: RawPack; count: number; pvePrice: ModePrice; liquidity: number }[]
+    >();
 
     for (const pack of pvp.items) {
       if (pack.types.includes("noFlea")) continue;
@@ -168,13 +175,14 @@ async function getPackMap(): Promise<Map<string, AmmoPackInfo>> {
         changeLast48hPercent: pvePack?.changeLast48hPercent ?? null,
       };
       if (pack.lastLowPrice == null && pvePrice.lastLowPrice == null) continue;
+      const liquidity = (pack.lastOfferCount ?? 0) + (pvePack?.lastOfferCount ?? 0);
       const list = candidates.get(contained.item.id) ?? [];
-      list.push({ pack, count: contained.count, pvePrice });
+      list.push({ pack, count: contained.count, pvePrice, liquidity });
       candidates.set(contained.item.id, list);
     }
 
     for (const [roundId, list] of candidates) {
-      const best = list.sort((a, b) => b.count - a.count)[0];
+      const best = list.sort((a, b) => b.liquidity - a.liquidity || b.count - a.count)[0];
       map.set(roundId, {
         id: best.pack.id,
         name: best.pack.name,
