@@ -1,5 +1,6 @@
 import { tarkovQuery } from "./api";
 import { MARKET_ALIASES, aliasesFor, normalizeSearch } from "./aliases";
+import type { Locale } from "@/lib/i18n/locales";
 import type { GameMode, MarketItem } from "./types";
 
 /**
@@ -30,8 +31,8 @@ const MARKET_ITEM_IDS = [
 ] as const;
 
 const MARKET_QUERY = /* GraphQL */ `
-  query MarketItems($ids: [ID], $gameMode: GameMode) {
-    items(lang: ko, ids: $ids, gameMode: $gameMode) {
+  query MarketItems($ids: [ID], $gameMode: GameMode, $lang: LanguageCode) {
+    items(lang: $lang, ids: $ids, gameMode: $gameMode) {
       id
       name
       shortName
@@ -69,10 +70,10 @@ interface RawMarketItem {
 export const MARKET_REVALIDATE = 300;
 
 /** 시세는 게임모드별로 다르므로 모드마다 따로 페칭·캐싱한다 */
-export async function getMarketItems(gameMode: GameMode): Promise<MarketItem[]> {
+export async function getMarketItems(gameMode: GameMode, lang: Locale): Promise<MarketItem[]> {
   const data = await tarkovQuery<{ items: RawMarketItem[] }>(
     MARKET_QUERY,
-    { ids: [...MARKET_ITEM_IDS], gameMode },
+    { ids: [...MARKET_ITEM_IDS], gameMode, lang },
     MARKET_REVALIDATE,
   );
 

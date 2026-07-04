@@ -21,8 +21,8 @@ const CALIBER_NAMES: Record<string, string> = {
   Caliber68x51: "6.8×51",
   Caliber9x33R: ".357 Magnum",
   Caliber127x33: ".50 AE",
-  Caliber12g: "12게이지",
-  Caliber20g: "20게이지",
+  Caliber12g: "12/70",
+  Caliber20g: "20/70",
   Caliber23x75: "23×75",
   Caliber762x67: ".300 Win Mag",
   Caliber127x99: ".50 BMG",
@@ -61,8 +61,8 @@ const CALIBER_ORDER = [
   "5.7×28",
   ".357 Magnum",
   ".50 AE",
-  "12게이지",
-  "20게이지",
+  "12/70",
+  "20/70",
   "23×75",
 ];
 

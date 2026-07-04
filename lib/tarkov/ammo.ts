@@ -1,11 +1,12 @@
 import { tarkovQuery } from "./api";
 import { AMMO_ALIASES, aliasesFor, normalizeSearch } from "./aliases";
 import { EXCLUDED_CALIBERS, caliberDisplayName, caliberSortIndex } from "./calibers";
+import type { Locale } from "@/lib/i18n/locales";
 import type { AmmoEntry, AmmoGroup, AmmoPackInfo, GameMode, ModePrice } from "./types";
 
 const AMMO_QUERY = /* GraphQL */ `
-  query AmmoTable {
-    ammo(lang: ko) {
+  query AmmoTable($lang: LanguageCode) {
+    ammo(lang: $lang) {
       caliber
       ammoType
       damage
@@ -116,8 +117,8 @@ export const AMMO_REVALIDATE = 3600;
 const PACK_REVALIDATE = 300;
 
 const PACKS_QUERY = /* GraphQL */ `
-  query AmmoPacks($gameMode: GameMode) {
-    items(type: ammoBox, gameMode: $gameMode, lang: ko, limit: 500) {
+  query AmmoPacks($gameMode: GameMode, $lang: LanguageCode) {
+    items(type: ammoBox, gameMode: $gameMode, lang: $lang, limit: 500) {
       id
       name
       types
@@ -151,12 +152,12 @@ interface RawPack {
  * — 최대 용량 기준은 호가 1개짜리 비유동 팩의 튀는 가격을 집어올 수 있다.
  * 시세는 부가 정보라 실패해도 탄약표 자체는 떠야 한다 → null 폴백.
  */
-async function getPackMap(): Promise<Map<string, AmmoPackInfo>> {
+async function getPackMap(lang: Locale): Promise<Map<string, AmmoPackInfo>> {
   const map = new Map<string, AmmoPackInfo>();
   try {
     const [pvp, pve] = await Promise.all(
       (["regular", "pve"] as GameMode[]).map((gameMode) =>
-        tarkovQuery<{ items: RawPack[] }>(PACKS_QUERY, { gameMode }, PACK_REVALIDATE),
+        tarkovQuery<{ items: RawPack[] }>(PACKS_QUERY, { gameMode, lang }, PACK_REVALIDATE),
       ),
     );
     const pveById = new Map(pve.items.map((p) => [p.id, p]));
@@ -200,10 +201,10 @@ async function getPackMap(): Promise<Map<string, AmmoPackInfo>> {
   return map;
 }
 
-export async function getAmmoGroups(): Promise<AmmoGroup[]> {
+export async function getAmmoGroups(lang: Locale): Promise<AmmoGroup[]> {
   const [data, packMap] = await Promise.all([
-    tarkovQuery<{ ammo: RawAmmo[] }>(AMMO_QUERY, undefined, AMMO_REVALIDATE),
-    getPackMap(),
+    tarkovQuery<{ ammo: RawAmmo[] }>(AMMO_QUERY, { lang }, AMMO_REVALIDATE),
+    getPackMap(lang),
   ]);
 
   const entries: AmmoEntry[] = data.ammo

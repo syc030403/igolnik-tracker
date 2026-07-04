@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useI18n } from "@/components/LocaleProvider";
 import { useSearch } from "@/components/SearchProvider";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
 import { penetrationChance, penTier } from "@/lib/tarkov/penetration";
@@ -14,8 +15,10 @@ const ARMOR_CLASSES = [1, 2, 3, 4, 5, 6] as const;
 type SortKey = "pen" | "dmg";
 
 export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
+  const { dict } = useI18n();
   const { query } = useSearch();
-  const [caliber, setCaliber] = useState("전체");
+  const ALL = "__all__";
+  const [caliber, setCaliber] = useState(ALL);
   const [sort, setSort] = useState<SortKey>("pen");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -24,7 +27,7 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
   const filtered = useMemo(() => {
     const nq = normalizeSearch(query.trim());
     let gs = groups;
-    if (caliber !== "전체") gs = gs.filter((g) => g.caliber === caliber);
+    if (caliber !== ALL) gs = gs.filter((g) => g.caliber === caliber);
     if (nq) {
       gs = gs
         .map((g) => ({
@@ -52,8 +55,8 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
   return (
     <section>
       <div className={styles.controls}>
-        <div className={styles.chips} role="tablist" aria-label="캘리버 필터">
-          {["전체", ...calibers].map((c) => (
+        <div className={styles.chips} role="tablist" aria-label="caliber filter">
+          {[ALL, ...calibers].map((c) => (
             <button
               key={c}
               role="tab"
@@ -61,61 +64,58 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
               className={c === caliber ? styles.chipActive : styles.chip}
               onClick={() => setCaliber(c)}
             >
-              {c}
+              {c === ALL ? dict.all : c}
             </button>
           ))}
         </div>
         <div className={styles.sortWrap}>
-          <span className={styles.sortLabel}>정렬</span>
+          <span className={styles.sortLabel}>{dict.sort}</span>
           <div className={styles.seg}>
             <button
               className={sort === "pen" ? styles.segActive : styles.segBtn}
               onClick={() => setSort("pen")}
             >
-              관통력
+              {dict.penetration}
             </button>
             <button
               className={sort === "dmg" ? styles.segActive : styles.segBtn}
               onClick={() => setSort("dmg")}
             >
-              데미지
+              {dict.damage}
             </button>
           </div>
         </div>
       </div>
 
       <div className={styles.legend}>
-        <span className={styles.legendTitle}>방어구 관통 확률</span>
+        <span className={styles.legendTitle}>{dict.legendTitle}</span>
         <span className={styles.legendItem}>
           <span className={`${styles.swatch} ${styles.swGood}`} />
-          관통 (70%+)
+          {dict.legendPen}
         </span>
         <span className={styles.legendItem}>
           <span className={`${styles.swatch} ${styles.swMid}`} />
-          애매 (40~69%)
+          {dict.legendMid}
         </span>
         <span className={styles.legendItem}>
           <span className={`${styles.swatch} ${styles.swLow}`} />
-          불안정 (18~39%)
+          {dict.legendLow}
         </span>
         <span className={styles.legendItem}>
           <span className={`${styles.swatch} ${styles.swBlock}`} />
-          막힘 (~17%)
+          {dict.legendBlock}
         </span>
       </div>
 
       <div className={styles.layout}>
         <div className={styles.tableCol}>
           {filtered.length === 0 ? (
-            <div className={styles.empty}>검색 결과 없음 — &ldquo;{query}&rdquo;</div>
+            <div className={styles.empty}>{dict.emptyResult} — &ldquo;{query}&rdquo;</div>
           ) : (
             <div className={styles.tableCard}>
               <div className={styles.tableScroll}>
                 <table className={styles.table}>
-                  <caption className={styles.srOnly}>
-                    Escape from Tarkov 탄약 성능표: 캘리버별 데미지, 관통력, 방어구 등급별 관통
-                    확률
-                  </caption>
+                  <caption className={styles.srOnly}>{dict.tableCaption}</caption>
                   {filtered.map((g, gi) => (
                     <tbody key={g.caliber}>
                       <tr>
@@ -125,18 +125,18 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
                           className={gi > 0 ? `${styles.groupHead} ${styles.groupHeadGap}` : styles.groupHead}
                         >
                           <span className={styles.groupName}>{g.caliber}</span>
-                          <span className={styles.groupCount}>{g.rows.length}종</span>
+                          <span className={styles.groupCount}>{g.rows.length}{dict.kindsSuffix}</span>
                         </th>
                       </tr>
                       <tr className={styles.colHead}>
                         <th scope="col" className={styles.thName}>
-                          탄약명
+                          {dict.ammoName}
                         </th>
                         <th scope="col" className={styles.thDmg}>
-                          데미지
+                          {dict.damage}
                         </th>
                         <th scope="col" className={styles.thPen}>
-                          관통력
+                          {dict.penetration}
                         </th>
                         {ARMOR_CLASSES.map((c) => (
                           <th
@@ -162,7 +162,7 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
                               <span className={styles.nameFull}>{r.name}</span>
                               <span className={styles.nameShort}>{r.shortName}</span>
                             </span>
-                            <span className={styles.nameSub}>데미지 {fmtDamage(r)}</span>
+                            <span className={styles.nameSub}>{dict.damage} {fmtDamage(r)}</span>
                           </td>
                           <td className={styles.tdDmg}>{fmtDamage(r)}</td>
                           <td className={styles.tdPen}>{r.penetrationPower}</td>

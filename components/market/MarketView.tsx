@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
 import AdSlot from "@/components/AdSlot";
+import { useI18n } from "@/components/LocaleProvider";
 import PriceChart from "@/components/ammo/PriceChart";
 import { useSearch } from "@/components/SearchProvider";
 import { fmtChangePercent, fmtRub } from "@/lib/format";
+import { localePath } from "@/lib/i18n/locales";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
 import type { GameMode, MarketItem } from "@/lib/tarkov/types";
 import styles from "./MarketView.module.css";
@@ -14,6 +16,7 @@ import styles from "./MarketView.module.css";
 type SortKey = "perSlot" | "flea" | "change";
 
 export default function MarketView({ items, mode }: { items: MarketItem[]; mode: GameMode }) {
+  const { lang, dict } = useI18n();
   const { query } = useSearch();
   const [sort, setSort] = useState<SortKey>("perSlot");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -39,43 +42,43 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
     <section>
       <div className={styles.controls}>
         <h2 className={styles.title}>
-          아이템 시세<span className={styles.count}>{rows.length}종</span>
+          {dict.marketTitle}<span className={styles.count}>{rows.length}{dict.kindsSuffix}</span>
         </h2>
         {/* 모드별 URL 분리 (SEO) — 클라이언트 상태가 아니라 링크 이동 */}
-        <nav className={styles.modeSeg} aria-label="게임모드 선택">
+        <nav className={styles.modeSeg} aria-label={dict.modeAria}>
           <Link
-            href="/market"
+            href={localePath(lang, "/market")}
             className={mode === "regular" ? styles.modeActive : styles.modeBtn}
           >
             PvP
           </Link>
           <Link
-            href="/market/pve"
+            href={localePath(lang, "/market/pve")}
             className={mode === "pve" ? styles.modeActive : styles.modeBtn}
           >
             PvE
           </Link>
         </nav>
         <div className={styles.sortWrap}>
-          <span className={styles.sortLabel}>정렬</span>
+          <span className={styles.sortLabel}>{dict.sort}</span>
           <div className={styles.seg}>
             <button
               className={sort === "perSlot" ? styles.segActive : styles.segBtn}
               onClick={() => setSort("perSlot")}
             >
-              슬롯당
+              {dict.perSlot}
             </button>
             <button
               className={sort === "flea" ? styles.segActive : styles.segBtn}
               onClick={() => setSort("flea")}
             >
-              플리가
+              {dict.fleaPrice}
             </button>
             <button
               className={sort === "change" ? styles.segActive : styles.segBtn}
               onClick={() => setSort("change")}
             >
-              변동률
+              {dict.changeRate}
             </button>
           </div>
         </div>
@@ -103,22 +106,22 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
                   <span className={styles.slotBadge}>
                     {it.width}×{it.height}
                   </span>
-                  {it.fleaBanned && <span className={styles.bannedBadge}>플리마켓 불가</span>}
+                  {it.fleaBanned && <span className={styles.bannedBadge}>{dict.fleaBannedBadge}</span>}
                 </span>
               </div>
               <div className={styles.prices}>
                 <div className={styles.priceCol}>
-                  <span className={styles.priceLabel}>플리마켓</span>
+                  <span className={styles.priceLabel}>{dict.fleaMarket}</span>
                   <span className={styles.priceVal}>{fmtRub(it.lastLowPrice)}</span>
                 </div>
                 <div className={styles.priceCol}>
                   <span className={styles.priceLabel}>
-                    트레이더{it.bestTraderName ? ` · ${it.bestTraderName}` : ""}
+                    {dict.traderLabel}{it.bestTraderName ? ` · ${it.bestTraderName}` : ""}
                   </span>
                   <span className={styles.priceValDim}>{fmtRub(it.bestTraderPrice)}</span>
                 </div>
                 <div className={styles.priceCol}>
-                  <span className={styles.priceLabelGold}>슬롯당</span>
+                  <span className={styles.priceLabelGold}>{dict.perSlot}</span>
                   <span className={styles.priceValGold}>{fmtRub(it.perSlot)}</span>
                 </div>
                 <div className={styles.priceColNarrow}>
@@ -136,7 +139,7 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
                 <div className={styles.detail} onClick={(e) => e.stopPropagation()}>
                   {it.fleaBanned ? (
                     <div className={styles.detailBanned}>
-                      플리마켓 거래 불가 아이템 — 트레이더 매각가 기준
+                      {dict.fleaBannedDetail}
                     </div>
                   ) : (
                     <PriceChart itemId={it.id} mode={mode} />
@@ -152,7 +155,7 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
           </Fragment>
         ))}
         {rows.length === 0 && (
-          <div className={styles.empty}>검색 결과 없음 — &ldquo;{query}&rdquo;</div>
+          <div className={styles.empty}>{dict.emptyResult} — &ldquo;{query}&rdquo;</div>
         )}
       </div>
     </section>

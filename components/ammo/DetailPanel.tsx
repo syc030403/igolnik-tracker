@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/components/LocaleProvider";
 import { fmtChangePercent, fmtModifier, fmtPercent, fmtRub } from "@/lib/format";
 import type { AmmoEntry, AmmoPackInfo, GameMode } from "@/lib/tarkov/types";
 import PriceChart from "./PriceChart";
 import styles from "./DetailPanel.module.css";
 
 export default function DetailPanel({ ammo }: { ammo: AmmoEntry }) {
+  const { dict } = useI18n();
   const stats = [
-    { label: "방어구 데미지", value: `${ammo.armorDamage}%` },
-    { label: "파편 확률", value: fmtPercent(ammo.fragmentationChance) },
-    { label: "탄속", value: ammo.initialSpeed ? `${ammo.initialSpeed} m/s` : "—" },
-    { label: "반동 보정", value: fmtModifier(ammo.recoilModifier) },
-    { label: "정확도 보정", value: fmtModifier(ammo.accuracyModifier) },
+    { label: dict.armorDamage, value: `${ammo.armorDamage}%` },
+    { label: dict.fragChance, value: fmtPercent(ammo.fragmentationChance) },
+    { label: dict.velocity, value: ammo.initialSpeed ? `${ammo.initialSpeed} m/s` : "—" },
+    { label: dict.recoilMod, value: fmtModifier(ammo.recoilModifier) },
+    { label: dict.accuracyMod, value: fmtModifier(ammo.accuracyModifier) },
   ];
 
   const tradable = !ammo.fleaBanned && ammo.lastLowPrice != null;
@@ -26,13 +28,13 @@ export default function DetailPanel({ ammo }: { ammo: AmmoEntry }) {
 
       <div className={styles.bigRow}>
         <div className={styles.bigCell}>
-          <div className={styles.bigLabel}>데미지</div>
+          <div className={styles.bigLabel}>{dict.damage}</div>
           <div className={styles.bigValue}>
             {ammo.projectileCount > 1 ? `${ammo.damage}×${ammo.projectileCount}` : ammo.damage}
           </div>
         </div>
         <div className={styles.bigCellLast}>
-          <div className={styles.bigLabelGold}>관통력</div>
+          <div className={styles.bigLabelGold}>{dict.penetration}</div>
           <div className={styles.bigValueGold}>{ammo.penetrationPower}</div>
         </div>
       </div>
@@ -55,18 +57,19 @@ export default function DetailPanel({ ammo }: { ammo: AmmoEntry }) {
       </div>
 
       <div className={styles.footnote}>
-        <span>* 관통 확률은 방어구 내구도 100% 기준 추정치</span>
+        <span>{dict.footnote}</span>
       </div>
     </div>
   );
 }
 
 function TradableMarket({ ammo }: { ammo: AmmoEntry }) {
+  const { dict } = useI18n();
   return (
     <>
       <div className={styles.priceHead}>
         <div>
-          <div className={styles.priceLabel}>플리마켓 현재가</div>
+          <div className={styles.priceLabel}>{dict.fleaCurrent}</div>
           <div className={styles.priceRow}>
             <span className={styles.price}>{fmtRub(ammo.lastLowPrice)}</span>
           </div>
@@ -78,6 +81,7 @@ function TradableMarket({ ammo }: { ammo: AmmoEntry }) {
 }
 
 function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
+  const { dict } = useI18n();
   const hasSources =
     ammo.traderPrices.length > 0 || ammo.barters.length > 0 || ammo.crafts.length > 0;
 
@@ -89,14 +93,14 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
       ) : (
         <div className={styles.bannedBadge}>
           <span className={styles.bannedDot} aria-hidden />
-          <span className={styles.bannedText}>플리마켓 거래 불가</span>
+          <span className={styles.bannedText}>{dict.fleaBanned}</span>
         </div>
       )}
-      <div className={styles.sourceTitle}>획득처</div>
-      {!hasSources && <div className={styles.noSource}>현재 확인된 획득처 없음</div>}
+      <div className={styles.sourceTitle}>{dict.sources}</div>
+      {!hasSources && <div className={styles.noSource}>{dict.noSources}</div>}
       {ammo.traderPrices.map((t, i) => (
         <div key={`t${i}`} className={styles.sourceRow}>
-          <span className={`${styles.tag} ${styles.tagTrader}`}>트레이더</span>
+          <span className={`${styles.tag} ${styles.tagTrader}`}>{dict.trader}</span>
           <span className={styles.sourceBody}>
             <span className={styles.sourceName}>{t.vendorName}</span>
             <span className={styles.sourceMeta}>
@@ -110,7 +114,7 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
       ))}
       {ammo.barters.map((b, i) => (
         <div key={`b${i}`} className={styles.sourceRow}>
-          <span className={`${styles.tag} ${styles.tagBarter}`}>물물교환</span>
+          <span className={`${styles.tag} ${styles.tagBarter}`}>{dict.barter}</span>
           <span className={styles.sourceBody}>
             <span className={styles.sourceName}>
               {b.traderName} LL{b.level}
@@ -123,7 +127,7 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
       ))}
       {ammo.crafts.map((c, i) => (
         <div key={`c${i}`} className={styles.sourceRow}>
-          <span className={`${styles.tag} ${styles.tagCraft}`}>제작</span>
+          <span className={`${styles.tag} ${styles.tagCraft}`}>{dict.craft}</span>
           <span className={styles.sourceBody}>
             <span className={styles.sourceName}>
               {c.stationName} Lv{c.level}
@@ -140,6 +144,7 @@ function BannedMarket({ ammo }: { ammo: AmmoEntry }) {
 
 /** 탄약 팩 시세 — 팩은 플리마켓 거래 가능하고 PvP/PvE 가격이 다르다 */
 function PackMarket({ pack }: { pack: AmmoPackInfo }) {
+  const { dict } = useI18n();
   const [mode, setMode] = useState<GameMode>("regular");
   const price = mode === "pve" ? pack.pve : pack.pvp;
   const perRound =
@@ -147,15 +152,15 @@ function PackMarket({ pack }: { pack: AmmoPackInfo }) {
 
   return (
     <div className={styles.packSection}>
-      <div className={styles.packNote}>단품은 플리마켓 거래 불가 · 탄약 팩 기준 시세</div>
+      <div className={styles.packNote}>{dict.packNote}</div>
       <div className={styles.priceHead}>
         <div>
-          <div className={styles.priceLabel}>탄약 팩 시세 ({pack.count}발)</div>
+          <div className={styles.priceLabel}>{dict.packPrice.replace("{n}", String(pack.count))}</div>
           <div className={styles.priceRow}>
             <span className={styles.price}>{fmtRub(price.lastLowPrice)}</span>
           </div>
           {perRound != null && (
-            <div className={styles.perRound}>발당 {fmtRub(perRound)}</div>
+            <div className={styles.perRound}>{dict.perRound} {fmtRub(perRound)}</div>
           )}
         </div>
         <div className={styles.modeTabs}>
@@ -173,7 +178,7 @@ function PackMarket({ pack }: { pack: AmmoPackInfo }) {
       {price.lastLowPrice != null ? (
         <PriceChart itemId={pack.id} mode={mode} />
       ) : (
-        <div className={styles.chartEmpty}>이 모드의 시세 데이터 없음</div>
+        <div className={styles.chartEmpty}>{dict.noModeData}</div>
       )}
     </div>
   );

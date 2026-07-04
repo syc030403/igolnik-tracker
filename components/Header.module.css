@@ -162,3 +162,80 @@
   margin-left: 5px;
   letter-spacing: 0.04em;
 }
+
+/* 언어 선택 드롭다운 */
+.langWrap {
+  position: relative;
+  margin-left: 22px;
+}
+
+.langBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
+  background: var(--surface-chip);
+  border: 1px solid var(--border-3);
+  border-radius: 3px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.langBtn:hover {
+  border-color: var(--gold);
+  color: var(--text);
+}
+
+.langCaret {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.langMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  min-width: 130px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-3);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.langItem,
+.langItemActive {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.langItem {
+  color: var(--text-3);
+}
+
+.langItem:hover {
+  background: var(--surface-chip);
+  color: var(--text);
+}
+
+.langItemActive {
+  color: var(--gold);
+  font-weight: 700;
+  background: var(--surface-chip);
+}

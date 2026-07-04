@@ -1,0 +1,94 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { IBM_Plex_Sans_KR, JetBrains_Mono, Oswald } from "next/font/google";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { LocaleProvider } from "@/components/LocaleProvider";
+import { SearchProvider } from "@/components/SearchProvider";
+import { getDict } from "@/lib/i18n/dictionaries";
+import { LOCALES, isLocale, type Locale } from "@/lib/i18n/locales";
+import { SITE_URL } from "@/lib/site";
+import "../globals.css";
+
+const plexKr = IBM_Plex_Sans_KR({
+  variable: "--font-plex-kr",
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+});
+
+const oswald = Oswald({
+  variable: "--font-oswald",
+  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+});
+
+const jbMono = JetBrains_Mono({
+  variable: "--font-jbmono",
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+});
+
+export function generateStaticParams() {
+  return LOCALES.map((lang) => ({ lang }));
+}
+
+export const dynamicParams = false;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const locale: Locale = isLocale(lang) ? lang : "ko";
+  const dict = getDict(locale);
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: dict.metaHomeTitle,
+      template: "%s | Igolnik Tracker",
+    },
+    description: dict.metaHomeDesc,
+    keywords: [
+      "타르코프",
+      "타르코프 탄약",
+      "타르코프 탄약표",
+      "타르코프 시세",
+      "Escape from Tarkov",
+      "Tarkov ammo chart",
+    ],
+    openGraph: {
+      type: "website",
+      locale: locale === "ko" ? "ko_KR" : locale,
+      siteName: "Igolnik Tracker",
+      title: dict.metaHomeTitle,
+      description: dict.metaHomeDesc,
+    },
+  };
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: Readonly<{
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
+}>) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = getDict(lang);
+
+  return (
+    <html lang={lang} className={`${plexKr.variable} ${oswald.variable} ${jbMono.variable}`}>
+      <body>
+        <LocaleProvider lang={lang} dict={dict}>
+          <SearchProvider>
+            <Header />
+            {children}
+            <Footer notice={dict.footerNotice} />
+          </SearchProvider>
+        </LocaleProvider>
+      </body>
+    </html>
+  );
+}

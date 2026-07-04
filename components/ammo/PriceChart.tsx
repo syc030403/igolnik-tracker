@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "@/components/LocaleProvider";
 import { fmtChangePercent, fmtRubCompact } from "@/lib/format";
 import type { GameMode, PricePoint } from "@/lib/tarkov/types";
 import styles from "./DetailPanel.module.css";
@@ -14,28 +15,28 @@ type Range = "1d" | "7d" | "1m";
 
 const RANGE_CONFIG: Record<
   Range,
-  { days: 1 | 7 | 30; bucketMs: number; label: string; baseOffsetMs: number; baseLabel: string }
+  { days: 1 | 7 | 30; bucketMs: number; label: string; baseOffsetMs: number; baseLabelKey: 'vsPrev' | 'vsDayAgo' | 'vsWeekAgo' }
 > = {
   "1d": {
     days: 1,
     bucketMs: 3_600_000,
     label: "1D",
     baseOffsetMs: 0, // 0 = 직전 봉 대비
-    baseLabel: "직전 대비",
+    baseLabelKey: "vsPrev",
   },
   "7d": {
     days: 7,
     bucketMs: 21_600_000,
     label: "7D",
     baseOffsetMs: 86_400_000,
-    baseLabel: "1일 전 대비",
+    baseLabelKey: "vsDayAgo",
   },
   "1m": {
     days: 30,
     bucketMs: 86_400_000,
     label: "1M",
     baseOffsetMs: 604_800_000,
-    baseLabel: "1주 전 대비",
+    baseLabelKey: "vsWeekAgo",
   },
 };
 
@@ -57,6 +58,7 @@ export default function PriceChart({
   itemId: string;
   mode?: GameMode;
 }) {
+  const { dict } = useI18n();
   const [range, setRange] = useState<Range>("7d");
   const [points, setPoints] = useState<PricePoint[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -109,9 +111,9 @@ export default function PriceChart({
     if (!base.close) return null;
     return {
       pct: ((last.close - base.close) / base.close) * 100,
-      label: cfg.baseLabel,
+      label: dict[cfg.baseLabelKey],
     };
-  }, [candles, range]);
+  }, [candles, range, dict]);
 
   return (
     <>
@@ -135,9 +137,9 @@ export default function PriceChart({
         )}
       </div>
       {failed || (candles && candles.length < 2) ? (
-        <div className={styles.chartEmpty}>가격 이력 데이터 없음</div>
+        <div className={styles.chartEmpty}>{dict.noHistory}</div>
       ) : !candles ? (
-        <div className={styles.chartEmpty}>불러오는 중…</div>
+        <div className={styles.chartEmpty}>{dict.loading}</div>
       ) : (
         <CandleChart candles={candles} range={range} />
       )}
@@ -190,6 +192,7 @@ function fmtTooltipTime(ts: number, range: Range): string {
 }
 
 function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
+  const { dict } = useI18n();
   const [hover, setHover] = useState<number | null>(null);
 
   const { xOf, yOf, min, max, candleW, xTicks } = useMemo(() => {
@@ -263,7 +266,7 @@ function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
       viewBox={`0 0 ${W} ${H}`}
       className={styles.chart}
       role="img"
-      aria-label="가격 캔들 차트"
+      aria-label={dict.chartAria}
       onPointerMove={onMove}
       onPointerLeave={() => setHover(null)}
     >
@@ -360,10 +363,10 @@ function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
             strokeDasharray="3 2"
           />
           <text x={M.left + 2} y={M.top + 8} className={styles.tooltipText}>
-            {fmtTooltipTime(hv.t, range)} · 시 {fmtRubCompact(hv.open)} 고 {fmtRubCompact(hv.high)}
+            {fmtTooltipTime(hv.t, range)} · {dict.ttOpen} {fmtRubCompact(hv.open)} {dict.ttHigh} {fmtRubCompact(hv.high)}
           </text>
           <text x={M.left + 2} y={M.top + 19} className={styles.tooltipText}>
-            저 {fmtRubCompact(hv.low)} 종 {fmtRubCompact(hv.close)} (
+            {dict.ttLow} {fmtRubCompact(hv.low)} {dict.ttClose} {fmtRubCompact(hv.close)} (
             {fmtChangePercent(((hv.close - hv.open) / hv.open) * 100)})
           </text>
         </g>
