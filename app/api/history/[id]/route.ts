@@ -24,7 +24,7 @@ export async function GET(
     return NextResponse.json({ error: "invalid id" }, { status: 400 });
   }
   const daysParam = req.nextUrl.searchParams.get("days");
-  const days = daysParam === "7" ? 7 : 1;
+  const days = daysParam === "30" ? 30 : daysParam === "7" ? 7 : 1;
   // 시세는 게임모드별로 별도 데이터 — 쿼리·캐시 모두 모드별로 분리된다
   const gameMode = req.nextUrl.searchParams.get("mode") === "pve" ? "pve" : "regular";
 

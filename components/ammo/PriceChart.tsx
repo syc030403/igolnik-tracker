@@ -1,13 +1,53 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { fmtChangePercent, fmtRub, fmtRubCompact } from "@/lib/format";
+import { fmtChangePercent, fmtRubCompact } from "@/lib/format";
 import type { GameMode, PricePoint } from "@/lib/tarkov/types";
 import styles from "./DetailPanel.module.css";
 
-type Range = "24h" | "7d";
+/**
+ * 캔들스틱 시세 차트.
+ * API가 이력을 30일까지만 보관하므로 (진짜 주봉·월봉은 불가)
+ * 1D=1시간봉 / 7D=6시간봉 / 1M=일봉으로 구성한다.
+ */
+type Range = "1d" | "7d" | "1m";
 
-// 세션 내 간단 캐시 — 같은 탄약을 다시 눌러도 재요청하지 않는다
+const RANGE_CONFIG: Record<
+  Range,
+  { days: 1 | 7 | 30; bucketMs: number; label: string; baseOffsetMs: number; baseLabel: string }
+> = {
+  "1d": {
+    days: 1,
+    bucketMs: 3_600_000,
+    label: "1D",
+    baseOffsetMs: 0, // 0 = 직전 봉 대비
+    baseLabel: "직전 대비",
+  },
+  "7d": {
+    days: 7,
+    bucketMs: 21_600_000,
+    label: "7D",
+    baseOffsetMs: 86_400_000,
+    baseLabel: "1일 전 대비",
+  },
+  "1m": {
+    days: 30,
+    bucketMs: 86_400_000,
+    label: "1M",
+    baseOffsetMs: 604_800_000,
+    baseLabel: "1주 전 대비",
+  },
+};
+
+interface Candle {
+  t: number; // 버킷 시작 시각
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+// 세션 내 간단 캐시 — 같은 아이템을 다시 눌러도 재요청하지 않는다
 const cache = new Map<string, PricePoint[]>();
 
 export default function PriceChart({
@@ -17,7 +57,7 @@ export default function PriceChart({
   itemId: string;
   mode?: GameMode;
 }) {
-  const [range, setRange] = useState<Range>("24h");
+  const [range, setRange] = useState<Range>("7d");
   const [points, setPoints] = useState<PricePoint[] | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -31,7 +71,7 @@ export default function PriceChart({
     let cancelled = false;
     setPoints(null);
     setFailed(false);
-    fetch(`/api/history/${itemId}?days=${range === "7d" ? 7 : 1}&mode=${mode}`)
+    fetch(`/api/history/${itemId}?days=${RANGE_CONFIG[range].days}&mode=${mode}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: PricePoint[]) => {
         if (cancelled) return;
@@ -46,44 +86,44 @@ export default function PriceChart({
     };
   }, [itemId, range, mode]);
 
-  // 선 색은 48H 변동률이 아니라 "보고 있는 구간"의 추세를 따른다 —
-  // 서로 기준이 다르면 급등 마감인데 빨간 선 같은 모순이 생긴다
-  const trendUp = points && points.length >= 2 ? points[points.length - 1].price >= points[0].price : true;
-  const color = trendUp ? "var(--up)" : "var(--down)";
+  const candles = useMemo(
+    () => (points ? toCandles(points, RANGE_CONFIG[range].bucketMs) : null),
+    [points, range],
+  );
 
-  // 탭별 변동률: 24H는 직전 시세 대비, 7D는 하루 전 대비
+  // 탭별 변동률: 1D는 직전 봉, 7D는 1일 전, 1M은 1주 전 종가 대비
   const change = useMemo(() => {
-    if (!points || points.length < 2) return null;
-    const last = points[points.length - 1];
-    let base: PricePoint;
-    if (range === "24h") {
-      base = points[points.length - 2];
+    if (!candles || candles.length < 2) return null;
+    const cfg = RANGE_CONFIG[range];
+    const last = candles[candles.length - 1];
+    let base: Candle;
+    if (cfg.baseOffsetMs === 0) {
+      base = candles[candles.length - 2];
     } else {
-      const target = last.timestamp - 86_400_000;
-      base = points.reduce(
-        (best, p) =>
-          Math.abs(p.timestamp - target) < Math.abs(best.timestamp - target) ? p : best,
-        points[0],
+      const target = last.t - cfg.baseOffsetMs;
+      base = candles.reduce(
+        (best, c) => (Math.abs(c.t - target) < Math.abs(best.t - target) ? c : best),
+        candles[0],
       );
     }
-    if (!base.price) return null;
+    if (!base.close) return null;
     return {
-      pct: ((last.price - base.price) / base.price) * 100,
-      label: range === "24h" ? "직전 대비" : "1일 전 대비",
+      pct: ((last.close - base.close) / base.close) * 100,
+      label: cfg.baseLabel,
     };
-  }, [points, range]);
+  }, [candles, range]);
 
   return (
     <>
       <div className={styles.rangeRow}>
         <div className={styles.rangeTabs}>
-          {(["24h", "7d"] as const).map((r) => (
+          {(Object.keys(RANGE_CONFIG) as Range[]).map((r) => (
             <button
               key={r}
               className={range === r ? styles.rangeTabActive : styles.rangeTab}
               onClick={() => setRange(r)}
             >
-              {r === "24h" ? "24H" : "7D"}
+              {RANGE_CONFIG[r].label}
             </button>
           ))}
         </div>
@@ -94,15 +134,38 @@ export default function PriceChart({
           </span>
         )}
       </div>
-      {failed || (points && points.length < 2) ? (
+      {failed || (candles && candles.length < 2) ? (
         <div className={styles.chartEmpty}>가격 이력 데이터 없음</div>
-      ) : !points ? (
+      ) : !candles ? (
         <div className={styles.chartEmpty}>불러오는 중…</div>
       ) : (
-        <Chart points={points} color={color} range={range} />
+        <CandleChart candles={candles} range={range} />
       )}
     </>
   );
+}
+
+/** 포인트를 버킷 단위 OHLC 캔들로 집계. 빈 버킷은 건너뛴다. */
+function toCandles(points: PricePoint[], bucketMs: number): Candle[] {
+  const byBucket = new Map<number, PricePoint[]>();
+  for (const p of points) {
+    const b = Math.floor(p.timestamp / bucketMs) * bucketMs;
+    const list = byBucket.get(b) ?? [];
+    list.push(p);
+    byBucket.set(b, list);
+  }
+  return [...byBucket.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([t, list]) => {
+      const prices = list.map((p) => p.price);
+      return {
+        t,
+        open: list[0].price,
+        close: list[list.length - 1].price,
+        high: Math.max(...prices),
+        low: Math.min(...prices),
+      };
+    });
 }
 
 // 뷰박스 좌표계 (viewBox 고정, 가로만 스케일)
@@ -114,57 +177,64 @@ const PLOT_H = H - M.top - M.bottom;
 
 function fmtTick(ts: number, range: Range): string {
   const d = new Date(ts);
-  if (range === "7d") return `${d.getMonth() + 1}/${d.getDate()}`;
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  if (range === "1d")
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
-function fmtTooltipTime(ts: number): string {
+function fmtTooltipTime(ts: number, range: Range): string {
   const d = new Date(ts);
-  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(
-    d.getMinutes(),
-  ).padStart(2, "0")}`;
+  const md = `${d.getMonth() + 1}/${d.getDate()}`;
+  if (range === "1m") return md;
+  return `${md} ${String(d.getHours()).padStart(2, "0")}:00`;
 }
 
-function Chart({ points, color, range }: { points: PricePoint[]; color: string; range: Range }) {
+function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
   const [hover, setHover] = useState<number | null>(null);
 
-  const { coords, poly, area, min, max, xTicks } = useMemo(() => {
-    const prices = points.map((p) => p.price);
-    const dataMin = Math.min(...prices);
-    const dataMax = Math.max(...prices);
-    // Y축 도메인 보정: 변동 폭이 작을 때(예: ±1%) 그대로 스케일하면
-    // 미세한 등락이 차트 전체 높이를 채워 급등락처럼 보인다.
-    // 중간값의 최소 12% 범위를 보장하고 위아래 8% 여유를 둔다.
+  const { xOf, yOf, min, max, candleW, xTicks } = useMemo(() => {
+    // 플리마켓 스캔 데이터에는 말도 안 되는 단발 호가(평소의 10배 등)가 끼어든다.
+    // 최저/최고의 5~95 퍼센타일로 스케일을 잡고 그 밖 꼬리는 플롯 경계에서 잘라
+    // 이상치 하나가 차트 전체를 눌러버리지 않게 한다. 마지막 종가는 항상 포함.
+    const q = (arr: number[], f: number) => {
+      const s = [...arr].sort((a, b) => a - b);
+      return s[Math.min(s.length - 1, Math.max(0, Math.round((s.length - 1) * f)))];
+    };
+    const lows = candles.map((c) => c.low);
+    const highs = candles.map((c) => c.high);
+    const lastClose = candles[candles.length - 1].close;
+    const dataMin = Math.min(q(lows, 0.05), lastClose);
+    const dataMax = Math.max(q(highs, 0.95), lastClose);
+    // Y축 도메인 보정: 변동 폭이 작을 때 미세 등락이 급등락처럼 보이지 않도록
+    // 중간값의 최소 12% 범위를 보장하고 위아래 8% 여유를 둔다. 가격은 음수 불가.
     const mid = (dataMin + dataMax) / 2;
-    const minSpan = Math.max(mid * 0.12, 1);
-    const rawSpan = Math.max(dataMax - dataMin, minSpan);
+    const rawSpan = Math.max(dataMax - dataMin, Math.max(mid * 0.12, 1));
     const pad = rawSpan * 0.08;
-    const min = mid - rawSpan / 2 - pad;
+    const min = Math.max(0, mid - rawSpan / 2 - pad);
     const max = mid + rawSpan / 2 + pad;
-    const span = max - min;
-    const t0 = points[0].timestamp;
-    const t1 = points[points.length - 1].timestamp;
-    const tSpan = t1 - t0 || 1;
-    const coords = points.map((p) => ({
-      x: M.left + ((p.timestamp - t0) / tSpan) * PLOT_W,
-      y: M.top + (1 - (p.price - min) / span) * PLOT_H,
-    }));
-    const poly = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
-    const area = `${coords[0].x.toFixed(1)},${M.top + PLOT_H} ${poly} ${coords[coords.length - 1].x.toFixed(1)},${M.top + PLOT_H}`;
-    // 시간축 눈금 3개 (시작/중간/끝)
+
+    const bucketMs = RANGE_CONFIG[range].bucketMs;
+    const t0 = candles[0].t;
+    const t1 = candles[candles.length - 1].t + bucketMs;
+    const tSpan = t1 - t0;
+    const xOf = (t: number) => M.left + ((t + bucketMs / 2 - t0) / tSpan) * PLOT_W;
+    // 도메인 밖 값(이상치 꼬리)은 플롯 경계에 클램프
+    const yOf = (price: number) => {
+      const y = M.top + (1 - (price - min) / (max - min)) * PLOT_H;
+      return Math.max(M.top, Math.min(M.top + PLOT_H, y));
+    };
+    const candleW = Math.max(2, Math.min(14, (bucketMs / tSpan) * PLOT_W * 0.65));
+
     const xTicks = [0, 0.5, 1].map((f) => ({
       x: M.left + f * PLOT_W,
-      label: fmtTick(t0 + f * tSpan, range),
+      label: fmtTick(t0 + f * (t1 - t0), range),
       anchor: f === 0 ? "start" : f === 1 ? "end" : "middle",
     }));
-    return { coords, poly, area, min, max, xTicks };
-  }, [points, range]);
+    return { xOf, yOf, min, max, candleW, xTicks };
+  }, [candles, range]);
 
-  const yOf = (price: number) =>
-    M.top + (1 - (price - min) / (max - min || 1)) * PLOT_H;
-
-  const last = points[points.length - 1];
-  const lastY = yOf(last.price);
+  const last = candles[candles.length - 1];
+  const lastY = yOf(last.close);
   const yTicks = [
     { y: yOf(max), label: fmtRubCompact(max) },
     { y: yOf((min + max) / 2), label: fmtRubCompact((min + max) / 2) },
@@ -176,8 +246,8 @@ function Chart({ points, color, range }: { points: PricePoint[]; color: string; 
     const x = ((e.clientX - rect.left) / rect.width) * W;
     let best = 0;
     let bestDist = Infinity;
-    coords.forEach((c, i) => {
-      const d = Math.abs(c.x - x);
+    candles.forEach((c, i) => {
+      const d = Math.abs(xOf(c.t) - x);
       if (d < bestDist) {
         bestDist = d;
         best = i;
@@ -186,14 +256,14 @@ function Chart({ points, color, range }: { points: PricePoint[]; color: string; 
     setHover(best);
   };
 
-  const hv = hover != null ? { p: points[hover], c: coords[hover] } : null;
+  const hv = hover != null ? candles[hover] : null;
 
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
       className={styles.chart}
       role="img"
-      aria-label="가격 추이 그래프"
+      aria-label="가격 캔들 차트"
       onPointerMove={onMove}
       onPointerLeave={() => setHover(null)}
     >
@@ -226,51 +296,75 @@ function Chart({ points, color, range }: { points: PricePoint[]; color: string; 
         </text>
       ))}
 
-      <polygon points={area} fill={color} fillOpacity="0.09" stroke="none" />
-      <polyline
-        points={poly}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
+      {/* 캔들: 위꼬리/아래꼬리 + 몸통 */}
+      {candles.map((c, i) => {
+        const up = c.close >= c.open;
+        const color = up ? "var(--up)" : "var(--down)";
+        const x = xOf(c.t);
+        const bodyTop = yOf(Math.max(c.open, c.close));
+        const bodyBot = yOf(Math.min(c.open, c.close));
+        return (
+          <g key={c.t} opacity={hover === null || hover === i ? 1 : 0.55}>
+            <line x1={x} x2={x} y1={yOf(c.high)} y2={yOf(c.low)} stroke={color} strokeWidth="1" />
+            <rect
+              x={x - candleW / 2}
+              y={bodyTop}
+              width={candleW}
+              height={Math.max(1, bodyBot - bodyTop)}
+              fill={color}
+              rx={0.5}
+            />
+          </g>
+        );
+      })}
 
-      {/* 현재가 태그 (우측 축, 강조색) */}
+      {/* 현재가(마지막 종가) 태그 */}
+      <line
+        x1={M.left}
+        x2={M.left + PLOT_W}
+        y1={lastY}
+        y2={lastY}
+        stroke={last.close >= last.open ? "var(--up)" : "var(--down)"}
+        strokeWidth="0.6"
+        strokeDasharray="2 3"
+        opacity="0.7"
+      />
       <rect
         x={W - M.right + 2}
         y={lastY - 7}
         width={M.right - 4}
         height={14}
         rx={2}
-        fill={color}
+        fill={last.close >= last.open ? "var(--up)" : "var(--down)"}
         fillOpacity="0.18"
       />
-      <text x={W - M.right + 5} y={lastY + 3} className={styles.axisLabelStrong} fill={color}>
-        {fmtRubCompact(last.price)}
+      <text
+        x={W - M.right + 5}
+        y={lastY + 3}
+        className={styles.axisLabelStrong}
+        fill={last.close >= last.open ? "var(--up)" : "var(--down)"}
+      >
+        {fmtRubCompact(last.close)}
       </text>
-      <circle cx={coords[coords.length - 1].x} cy={lastY} r="2.2" fill={color} />
 
-      {/* 호버 십자선 + 툴팁 */}
+      {/* 호버 십자선 + 시고저종 툴팁 */}
       {hv && (
         <g pointerEvents="none">
           <line
-            x1={hv.c.x}
-            x2={hv.c.x}
+            x1={xOf(hv.t)}
+            x2={xOf(hv.t)}
             y1={M.top}
             y2={M.top + PLOT_H}
             stroke="var(--text-faint)"
             strokeWidth="0.8"
             strokeDasharray="3 2"
           />
-          <circle cx={hv.c.x} cy={hv.c.y} r="3" fill={color} stroke="var(--bg)" strokeWidth="1" />
-          <text
-            x={hv.c.x < W / 2 ? hv.c.x + 6 : hv.c.x - 6}
-            y={M.top + 9}
-            textAnchor={hv.c.x < W / 2 ? "start" : "end"}
-            className={styles.tooltipText}
-          >
-            {fmtTooltipTime(hv.p.timestamp)} · {fmtRub(hv.p.price)}
+          <text x={M.left + 2} y={M.top + 8} className={styles.tooltipText}>
+            {fmtTooltipTime(hv.t, range)} · 시 {fmtRubCompact(hv.open)} 고 {fmtRubCompact(hv.high)}
+          </text>
+          <text x={M.left + 2} y={M.top + 19} className={styles.tooltipText}>
+            저 {fmtRubCompact(hv.low)} 종 {fmtRubCompact(hv.close)} (
+            {fmtChangePercent(((hv.close - hv.open) / hv.open) * 100)})
           </text>
         </g>
       )}
