@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import AdSlot from "@/components/AdSlot";
+import DataError from "@/components/DataError";
 import MarketView from "@/components/market/MarketView";
 import { getMarketItems } from "@/lib/tarkov/market";
+import type { MarketItem } from "@/lib/tarkov/types";
 import styles from "../../page.module.css";
 
 export const metadata: Metadata = {
@@ -14,7 +16,12 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function MarketPvePage() {
-  const items = await getMarketItems("pve");
+  let items: MarketItem[] | null = null;
+  try {
+    items = await getMarketItems("pve");
+  } catch {
+    items = null;
+  }
 
   return (
     <>
@@ -23,7 +30,7 @@ export default async function MarketPvePage() {
       </div>
       <main className={styles.main}>
         <h1 className={styles.srOnly}>타르코프 PVE 아이템 시세 — 벼룩시장·트레이더 가격 비교</h1>
-        <MarketView items={items} mode="pve" />
+        {items ? <MarketView items={items} mode="pve" /> : <DataError />}
       </main>
     </>
   );
