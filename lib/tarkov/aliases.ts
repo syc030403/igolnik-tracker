@@ -38,7 +38,7 @@ export const AMMO_ALIASES: Record<string, string> = {
 };
 
 export const MARKET_ALIASES: Record<string, string> = {
-  ledx: "레드엑스 렛드엑스 스킨트랜스일루미네이터",
+  ledx: "레드엑스 렛드엑스 레덱스 레덱 스킨트랜스일루미네이터",
   bitcoin: "비트코인 비코",
   "graphics card": "그래픽카드 그카",
   gpu: "그래픽카드 그카",

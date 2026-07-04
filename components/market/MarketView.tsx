@@ -1,17 +1,18 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
 import AdSlot from "@/components/AdSlot";
 import { useSearch } from "@/components/SearchProvider";
 import { fmtChangePercent, fmtRub } from "@/lib/format";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
-import type { MarketItem } from "@/lib/tarkov/types";
+import type { GameMode, MarketItem } from "@/lib/tarkov/types";
 import styles from "./MarketView.module.css";
 
 type SortKey = "perSlot" | "flea" | "change";
 
-export default function MarketView({ items }: { items: MarketItem[] }) {
+export default function MarketView({ items, mode }: { items: MarketItem[]; mode: GameMode }) {
   const { query } = useSearch();
   const [sort, setSort] = useState<SortKey>("perSlot");
 
@@ -38,6 +39,21 @@ export default function MarketView({ items }: { items: MarketItem[] }) {
         <h2 className={styles.title}>
           아이템 시세<span className={styles.count}>{rows.length}종</span>
         </h2>
+        {/* 모드별 URL 분리 (SEO) — 클라이언트 상태가 아니라 링크 이동 */}
+        <nav className={styles.modeSeg} aria-label="게임모드 선택">
+          <Link
+            href="/market"
+            className={mode === "regular" ? styles.modeActive : styles.modeBtn}
+          >
+            PvP
+          </Link>
+          <Link
+            href="/market/pve"
+            className={mode === "pve" ? styles.modeActive : styles.modeBtn}
+          >
+            PvE
+          </Link>
+        </nav>
         <div className={styles.sortWrap}>
           <span className={styles.sortLabel}>정렬</span>
           <div className={styles.seg}>

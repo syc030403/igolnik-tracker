@@ -43,7 +43,7 @@ export default function Header() {
           </Link>
           <Link
             href="/market"
-            className={pathname === "/market" ? styles.tabActive : styles.tab}
+            className={pathname.startsWith("/market") ? styles.tabActive : styles.tab}
           >
             시세
           </Link>

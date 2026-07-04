@@ -1,6 +1,6 @@
 import { tarkovQuery } from "./api";
 import { MARKET_ALIASES, aliasesFor, normalizeSearch } from "./aliases";
-import type { MarketItem } from "./types";
+import type { GameMode, MarketItem } from "./types";
 
 /**
  * 시세 페이지 큐레이션 목록 (인기 물물교환/하이드아웃 아이템).
@@ -30,8 +30,8 @@ const MARKET_ITEM_IDS = [
 ] as const;
 
 const MARKET_QUERY = /* GraphQL */ `
-  query MarketItems($ids: [ID]) {
-    items(lang: ko, ids: $ids) {
+  query MarketItems($ids: [ID], $gameMode: GameMode) {
+    items(lang: ko, ids: $ids, gameMode: $gameMode) {
       id
       name
       shortName
@@ -68,10 +68,11 @@ interface RawMarketItem {
 /** 시세는 자주 변함 — 5분 ISR */
 export const MARKET_REVALIDATE = 300;
 
-export async function getMarketItems(): Promise<MarketItem[]> {
+/** 시세는 게임모드별로 다르므로 모드마다 따로 페칭·캐싱한다 */
+export async function getMarketItems(gameMode: GameMode): Promise<MarketItem[]> {
   const data = await tarkovQuery<{ items: RawMarketItem[] }>(
     MARKET_QUERY,
-    { ids: [...MARKET_ITEM_IDS] },
+    { ids: [...MARKET_ITEM_IDS], gameMode },
     MARKET_REVALIDATE,
   );
 

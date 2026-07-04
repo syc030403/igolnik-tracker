@@ -13,5 +13,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "hourly",
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/market/pve`,
+      changeFrequency: "hourly",
+      priority: 0.8,
+    },
   ];
 }

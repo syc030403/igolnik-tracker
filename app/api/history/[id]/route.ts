@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 const ENDPOINT = "https://api.tarkov.dev/graphql";
 
 const HISTORY_QUERY = /* GraphQL */ `
-  query History($id: ID!, $days: Int) {
-    historicalItemPrices(id: $id, days: $days) {
+  query History($id: ID!, $days: Int, $gameMode: GameMode) {
+    historicalItemPrices(id: $id, days: $days, gameMode: $gameMode) {
       price
       timestamp
     }
@@ -25,11 +25,13 @@ export async function GET(
   }
   const daysParam = req.nextUrl.searchParams.get("days");
   const days = daysParam === "7" ? 7 : 1;
+  // 시세는 게임모드별로 별도 데이터 — 쿼리·캐시 모두 모드별로 분리된다
+  const gameMode = req.nextUrl.searchParams.get("mode") === "pve" ? "pve" : "regular";
 
   const res = await fetch(ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query: HISTORY_QUERY, variables: { id, days } }),
+    body: JSON.stringify({ query: HISTORY_QUERY, variables: { id, days, gameMode } }),
     next: { revalidate: 300 },
   });
   if (!res.ok) {

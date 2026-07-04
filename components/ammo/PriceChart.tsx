@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fmtRub } from "@/lib/format";
-import type { PricePoint } from "@/lib/tarkov/types";
+import type { GameMode, PricePoint } from "@/lib/tarkov/types";
 import styles from "./DetailPanel.module.css";
 
 type Range = "24h" | "7d";
@@ -10,13 +10,21 @@ type Range = "24h" | "7d";
 // 세션 내 간단 캐시 — 같은 탄약을 다시 눌러도 재요청하지 않는다
 const cache = new Map<string, PricePoint[]>();
 
-export default function PriceChart({ itemId, up }: { itemId: string; up: boolean }) {
+export default function PriceChart({
+  itemId,
+  up,
+  mode = "regular",
+}: {
+  itemId: string;
+  up: boolean;
+  mode?: GameMode;
+}) {
   const [range, setRange] = useState<Range>("24h");
   const [points, setPoints] = useState<PricePoint[] | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    const key = `${itemId}:${range}`;
+    const key = `${itemId}:${range}:${mode}`;
     const cached = cache.get(key);
     if (cached) {
       setPoints(cached);
@@ -25,7 +33,7 @@ export default function PriceChart({ itemId, up }: { itemId: string; up: boolean
     let cancelled = false;
     setPoints(null);
     setFailed(false);
-    fetch(`/api/history/${itemId}?days=${range === "7d" ? 7 : 1}`)
+    fetch(`/api/history/${itemId}?days=${range === "7d" ? 7 : 1}&mode=${mode}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: PricePoint[]) => {
         if (cancelled) return;
@@ -38,7 +46,7 @@ export default function PriceChart({ itemId, up }: { itemId: string; up: boolean
     return () => {
       cancelled = true;
     };
-  }, [itemId, range]);
+  }, [itemId, range, mode]);
 
   const color = up ? "var(--up)" : "var(--down)";
 

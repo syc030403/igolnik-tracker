@@ -1,3 +1,6 @@
+/** tarkov.dev gameMode 파라미터. API 기본값은 regular(PvP) */
+export type GameMode = "regular" | "pve";
+
 export interface TraderPrice {
   price: number;
   priceRUB: number;
