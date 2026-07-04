@@ -1,6 +1,9 @@
 /**
- * 방어구 관통 확률 (커뮤니티에 문서화된 BSG 탄도 공식, 내구도 100% 기준).
- * https://escapefromtarkov.fandom.com/wiki/Ballistics
+ * 방어구 관통 확률 근사 (내구도 100% 기준 추정치).
+ *
+ * BSG는 정확한 공식을 공개하지 않는다. 아래는 커뮤니티가 게임 코드 분석으로
+ * 확인해 탄도 계산기들(Desmos armor pen calculator, tarkov-ballistics 등)이
+ * 공용하는 근사식이다. UI에도 "추정치" 문구를 반드시 유지할 것.
  *
  * 내구도 D(%)에서 방어구의 유효 저항:
  *   f = (121 - 5000 / (45 + 2D)) * class * 10 * 0.01
