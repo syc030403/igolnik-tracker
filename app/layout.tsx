@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     template: "%s | Igolnik Tracker",
   },
   description:
-    "Escape from Tarkov 탄약 성능표와 아이템 시세를 한국어로. 캘리버별 관통력·데미지·방어구 관통 확률, 벼룩시장 시세 실시간 확인.",
+    "Escape from Tarkov 탄약 성능표와 아이템 시세를 한국어로. 캘리버별 관통력·데미지·방어구 관통 확률, 플리마켓 시세 실시간 확인.",
   keywords: ["타르코프", "타르코프 탄약", "타르코프 탄약표", "타르코프 시세", "Escape from Tarkov"],
   openGraph: {
     type: "website",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: "Igolnik Tracker",
     title: "타르코프 탄약표 · 시세 | Igolnik Tracker",
     description:
-      "Escape from Tarkov 탄약 성능표와 아이템 시세를 한국어로. 방어구 관통 확률과 벼룩시장 시세 확인.",
+      "Escape from Tarkov 탄약 성능표와 아이템 시세를 한국어로. 방어구 관통 확률과 플리마켓 시세 확인.",
   },
 };
 

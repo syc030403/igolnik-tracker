@@ -69,7 +69,7 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
               className={sort === "flea" ? styles.segActive : styles.segBtn}
               onClick={() => setSort("flea")}
             >
-              벼룩가
+              플리가
             </button>
             <button
               className={sort === "change" ? styles.segActive : styles.segBtn}
@@ -103,12 +103,12 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
                   <span className={styles.slotBadge}>
                     {it.width}×{it.height}
                   </span>
-                  {it.fleaBanned && <span className={styles.bannedBadge}>벼룩 불가</span>}
+                  {it.fleaBanned && <span className={styles.bannedBadge}>플리마켓 불가</span>}
                 </span>
               </div>
               <div className={styles.prices}>
                 <div className={styles.priceCol}>
-                  <span className={styles.priceLabel}>벼룩시장</span>
+                  <span className={styles.priceLabel}>플리마켓</span>
                   <span className={styles.priceVal}>{fmtRub(it.lastLowPrice)}</span>
                 </div>
                 <div className={styles.priceCol}>
@@ -136,7 +136,7 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
                 <div className={styles.detail} onClick={(e) => e.stopPropagation()}>
                   {it.fleaBanned ? (
                     <div className={styles.detailBanned}>
-                      벼룩시장 거래 불가 아이템 — 트레이더 매각가 기준
+                      플리마켓 거래 불가 아이템 — 트레이더 매각가 기준
                     </div>
                   ) : (
                     <PriceChart

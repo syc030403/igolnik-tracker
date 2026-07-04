@@ -21,14 +21,14 @@ export interface CraftSource {
   requiredItems: { count: number; name: string }[];
 }
 
-/** 게임모드별 벼룩시장 시세 스냅샷 */
+/** 게임모드별 플리마켓 시세 스냅샷 */
 export interface ModePrice {
   lastLowPrice: number | null;
   changeLast48hPercent: number | null;
 }
 
 /**
- * 탄약 팩(ammoBox) 시세. 탄약 단품은 벼룩 거래 금지지만
+ * 탄약 팩(ammoBox) 시세. 탄약 단품은 플리마켓 거래 금지지만
  * 팩은 거래 가능하며 PvP/PvE 가격이 다르다.
  */
 export interface AmmoPackInfo {
@@ -64,7 +64,7 @@ export interface AmmoEntry {
   traderPrices: TraderPrice[];
   barters: BarterSource[];
   crafts: CraftSource[];
-  /** 벼룩 거래 가능한 탄약 팩 (없으면 null) */
+  /** 플리마켓 거래 가능한 탄약 팩 (없으면 null) */
   pack: AmmoPackInfo | null;
 }
 
@@ -84,7 +84,7 @@ export interface MarketItem {
   fleaBanned: boolean;
   lastLowPrice: number | null;
   changeLast48hPercent: number | null;
-  /** 벼룩 제외 트레이더 최고 매입가 (RUB 환산) */
+  /** 플리마켓 제외 트레이더 최고 매입가 (RUB 환산) */
   bestTraderPrice: number | null;
   bestTraderName: string | null;
 }
