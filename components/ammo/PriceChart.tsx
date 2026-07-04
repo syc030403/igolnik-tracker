@@ -99,9 +99,18 @@ function Chart({ points, color, range }: { points: PricePoint[]; color: string; 
 
   const { coords, poly, area, min, max, xTicks } = useMemo(() => {
     const prices = points.map((p) => p.price);
-    const min = Math.min(...prices);
-    const max = Math.max(...prices);
-    const span = max - min || 1;
+    const dataMin = Math.min(...prices);
+    const dataMax = Math.max(...prices);
+    // Y축 도메인 보정: 변동 폭이 작을 때(예: ±1%) 그대로 스케일하면
+    // 미세한 등락이 차트 전체 높이를 채워 급등락처럼 보인다.
+    // 중간값의 최소 12% 범위를 보장하고 위아래 8% 여유를 둔다.
+    const mid = (dataMin + dataMax) / 2;
+    const minSpan = Math.max(mid * 0.12, 1);
+    const rawSpan = Math.max(dataMax - dataMin, minSpan);
+    const pad = rawSpan * 0.08;
+    const min = mid - rawSpan / 2 - pad;
+    const max = mid + rawSpan / 2 + pad;
+    const span = max - min;
     const t0 = points[0].timestamp;
     const t1 = points[points.length - 1].timestamp;
     const tSpan = t1 - t0 || 1;
