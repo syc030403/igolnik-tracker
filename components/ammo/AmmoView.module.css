@@ -156,15 +156,18 @@
   background: var(--surface);
 }
 
+/* overflow: hidden을 두면 sticky 캘리버 헤더가 뷰포트에 고정되지 못한다 */
 .tableCard {
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--surface);
-  overflow: hidden;
 }
 
+/* 데스크톱은 가로 스크롤 컨테이너를 만들지 않는다 —
+   overflow 컨테이너 안에서는 sticky 기준이 뷰포트가 아니라 컨테이너가 되어
+   캘리버 헤더가 60px 밀려 뜨는 문제가 있었음 */
 .tableScroll {
-  overflow-x: auto;
+  overflow-x: visible;
 }
 
 .table {
@@ -359,18 +362,36 @@
   align-self: flex-start;
 }
 
-.sheetBackdrop {
-  display: none;
-}
-
 .midAd {
   margin-top: 22px;
 }
 
-@media (max-width: 759px) {
-  .panelCol {
-    display: none;
+/* 좁은 화면(세로 모니터·태블릿·모바일): 상세 패널을 표 위에 배치.
+   사이드 패널은 표 전체 폭(약 620px)+패널이 들어가는 1000px 이상에서만 */
+@media (max-width: 999px) {
+  .layout {
+    flex-direction: column;
   }
+
+  .panelCol {
+    position: static;
+    width: 100%;
+    order: 1;
+  }
+
+  .tableCol {
+    order: 2;
+  }
+}
+
+/* 초소형 화면 안전장치 — sticky는 포기하고 가로 스크롤 허용 */
+@media (max-width: 400px) {
+  .tableScroll {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 759px) {
 
   .nameSub {
     display: block;
@@ -428,43 +449,5 @@
 
   .groupHead {
     top: 0;
-  }
-
-  .sheetBackdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    background: rgba(10, 10, 6, 0.6);
-  }
-
-  .sheet {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 41;
-    max-height: 82vh;
-    overflow-y: auto;
-    background: var(--surface-2);
-    border-top: 1px solid var(--border-3);
-    border-radius: 10px 10px 0 0;
-    padding-top: 6px;
-  }
-
-  .sheetClose {
-    position: sticky;
-    top: 6px;
-    float: right;
-    margin: 4px 10px 0 0;
-    z-index: 2;
-    width: 30px;
-    height: 30px;
-    border: 1px solid var(--border-3);
-    border-radius: 3px;
-    background: var(--surface-chip);
-    color: var(--text-3);
-    font-size: 13px;
-    cursor: pointer;
   }
 }

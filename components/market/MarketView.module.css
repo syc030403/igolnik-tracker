@@ -115,6 +115,31 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 3px;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: var(--border-4);
+}
+
+.cardOpen {
+  border-color: var(--gold);
+}
+
+/* 카드 클릭 시 펼쳐지는 상세 (그래프) */
+.detail {
+  flex-basis: 100%;
+  border-top: 1px solid var(--row-line);
+  padding-top: 10px;
+  cursor: default;
+  max-width: 480px;
+}
+
+.detailBanned {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 6px 0;
 }
 
 .icon {

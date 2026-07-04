@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
 import AdSlot from "@/components/AdSlot";
+import PriceChart from "@/components/ammo/PriceChart";
 import { useSearch } from "@/components/SearchProvider";
 import { fmtChangePercent, fmtRub } from "@/lib/format";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
@@ -15,6 +16,7 @@ type SortKey = "perSlot" | "flea" | "change";
 export default function MarketView({ items, mode }: { items: MarketItem[]; mode: GameMode }) {
   const { query } = useSearch();
   const [sort, setSort] = useState<SortKey>("perSlot");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const rows = useMemo(() => {
     const nq = normalizeSearch(query.trim());
@@ -82,7 +84,11 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
       <div className={styles.list}>
         {rows.map((it, i) => (
           <Fragment key={it.id}>
-            <article className={styles.card}>
+            <article
+              className={expandedId === it.id ? `${styles.card} ${styles.cardOpen}` : styles.card}
+              onClick={() => setExpandedId(expandedId === it.id ? null : it.id)}
+              aria-expanded={expandedId === it.id}
+            >
               <div className={styles.icon}>
                 {it.iconLink ? (
                   <Image src={it.iconLink} alt={it.name} width={46} height={46} unoptimized={false} />
@@ -126,6 +132,21 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
                   </span>
                 </div>
               </div>
+              {expandedId === it.id && (
+                <div className={styles.detail} onClick={(e) => e.stopPropagation()}>
+                  {it.fleaBanned ? (
+                    <div className={styles.detailBanned}>
+                      벼룩시장 거래 불가 아이템 — 트레이더 매각가 기준
+                    </div>
+                  ) : (
+                    <PriceChart
+                      itemId={it.id}
+                      up={(it.changeLast48hPercent ?? 0) >= 0}
+                      mode={mode}
+                    />
+                  )}
+                </div>
+              )}
             </article>
             {i === 5 && rows.length > 7 && (
               <div className={styles.midAd}>

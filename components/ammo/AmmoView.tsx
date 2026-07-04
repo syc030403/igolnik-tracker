@@ -18,7 +18,6 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
   const [caliber, setCaliber] = useState("전체");
   const [sort, setSort] = useState<SortKey>("pen");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   const calibers = useMemo(() => groups.map((g) => g.caliber), [groups]);
 
@@ -48,10 +47,7 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
   const selected: AmmoEntry | null =
     allRows.find((r) => r.id === selectedId) ?? allRows[0] ?? null;
 
-  const onSelect = (row: AmmoEntry) => {
-    setSelectedId(row.id);
-    setSheetOpen(true);
-  };
+  const onSelect = (row: AmmoEntry) => setSelectedId(row.id);
 
   return (
     <section>
@@ -197,27 +193,6 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
           {selected && <DetailPanel ammo={selected} />}
         </aside>
       </div>
-
-      {sheetOpen && selected && (
-        <div className={styles.sheetBackdrop} onClick={() => setSheetOpen(false)}>
-          <div
-            className={styles.sheet}
-            role="dialog"
-            aria-modal
-            aria-label={`${selected.name} 상세 정보`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className={styles.sheetClose}
-              onClick={() => setSheetOpen(false)}
-              aria-label="닫기"
-            >
-              ✕
-            </button>
-            <DetailPanel ammo={selected} />
-          </div>
-        </div>
-      )}
 
       <div className={styles.midAd}>
         <AdSlot label="본문 중간" />
