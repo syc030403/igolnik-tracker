@@ -12,11 +12,9 @@ const cache = new Map<string, PricePoint[]>();
 
 export default function PriceChart({
   itemId,
-  up,
   mode = "regular",
 }: {
   itemId: string;
-  up: boolean;
   mode?: GameMode;
 }) {
   const [range, setRange] = useState<Range>("24h");
@@ -48,7 +46,10 @@ export default function PriceChart({
     };
   }, [itemId, range, mode]);
 
-  const color = up ? "var(--up)" : "var(--down)";
+  // 선 색은 48H 변동률이 아니라 "보고 있는 구간"의 추세를 따른다 —
+  // 서로 기준이 다르면 급등 마감인데 빨간 선 같은 모순이 생긴다
+  const trendUp = points && points.length >= 2 ? points[points.length - 1].price >= points[0].price : true;
+  const color = trendUp ? "var(--up)" : "var(--down)";
 
   return (
     <>

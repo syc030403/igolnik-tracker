@@ -74,12 +74,13 @@ function TradableMarket({ ammo }: { ammo: AmmoEntry }) {
             {change != null && (
               <span className={up ? styles.changeUp : styles.changeDown}>
                 {fmtChangePercent(change)}
+                <span className={styles.changePeriod}>48H</span>
               </span>
             )}
           </div>
         </div>
       </div>
-      <PriceChart itemId={ammo.id} up={up} />
+      <PriceChart itemId={ammo.id} />
     </>
   );
 }
@@ -164,6 +165,7 @@ function PackMarket({ pack }: { pack: AmmoPackInfo }) {
             {price.changeLast48hPercent != null && (
               <span className={up ? styles.changeUp : styles.changeDown}>
                 {fmtChangePercent(price.changeLast48hPercent)}
+                <span className={styles.changePeriod}>48H</span>
               </span>
             )}
           </div>
@@ -184,7 +186,7 @@ function PackMarket({ pack }: { pack: AmmoPackInfo }) {
         </div>
       </div>
       {price.lastLowPrice != null ? (
-        <PriceChart itemId={pack.id} up={up} mode={mode} />
+        <PriceChart itemId={pack.id} mode={mode} />
       ) : (
         <div className={styles.chartEmpty}>이 모드의 시세 데이터 없음</div>
       )}

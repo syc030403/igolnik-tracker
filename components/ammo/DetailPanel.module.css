@@ -150,6 +150,15 @@
   color: var(--down);
 }
 
+/* 변동률 기준 기간 표시 — 그래프(24H/7일)와 기준이 달라 혼동 방지 */
+.changePeriod {
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-left: 3px;
+  letter-spacing: 0.04em;
+}
+
 .rangeTabs {
   display: flex;
   border: 1px solid var(--border-4);

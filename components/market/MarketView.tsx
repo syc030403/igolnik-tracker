@@ -139,11 +139,7 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
                       플리마켓 거래 불가 아이템 — 트레이더 매각가 기준
                     </div>
                   ) : (
-                    <PriceChart
-                      itemId={it.id}
-                      up={(it.changeLast48hPercent ?? 0) >= 0}
-                      mode={mode}
-                    />
+                    <PriceChart itemId={it.id} mode={mode} />
                   )}
                 </div>
               )}
