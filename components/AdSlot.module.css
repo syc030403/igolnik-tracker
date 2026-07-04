@@ -1,0 +1,24 @@
+.slot {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  margin: 0 auto;
+  border: 1px dashed var(--border-4);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--surface),
+    var(--surface) 10px,
+    var(--surface-3) 10px,
+    var(--surface-3) 20px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}

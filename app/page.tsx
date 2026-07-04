@@ -1,66 +1,31 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import AdSlot from "@/components/AdSlot";
+import AmmoView from "@/components/ammo/AmmoView";
+import { getAmmoGroups } from "@/lib/tarkov/ammo";
 import styles from "./page.module.css";
 
-export default function Home() {
+export const metadata: Metadata = {
+  // 루트 세그먼트 page에는 layout의 title.template이 적용되지 않아 절대값으로 지정
+  title: { absolute: "타르코프 탄약표 — 관통력 · 방어구 관통 확률 | Igolnik Tracker" },
+  description:
+    "Escape from Tarkov 전 캘리버 탄약 성능표. 관통력, 데미지, 방어구 등급 1~6 관통 확률을 색상으로 한눈에. 탄약별 시세와 획득처(트레이더·물물교환·제작)까지 확인.",
+  alternates: { canonical: "/" },
+};
+
+export const revalidate = 3600;
+
+export default async function AmmoPage() {
+  const groups = await getAmmoGroups();
+
   return (
-    <div className={styles.page}>
+    <>
+      <div className={styles.topAd}>
+        <AdSlot />
+      </div>
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        <h1 className={styles.srOnly}>타르코프 탄약 성능표 — 캘리버별 관통력·데미지</h1>
+        <AmmoView groups={groups} />
       </main>
-    </div>
+    </>
   );
 }
