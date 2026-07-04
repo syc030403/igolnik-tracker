@@ -183,8 +183,31 @@
 
 .chart {
   width: 100%;
-  height: 64px;
+  height: auto;
   display: block;
+  touch-action: pan-y;
+}
+
+.axisLabel {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  fill: var(--text-faint);
+}
+
+.axisLabelStrong {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+.tooltipText {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--text-2);
+  paint-order: stroke;
+  stroke: var(--surface-2);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 .chartEmpty {
@@ -194,15 +217,6 @@
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-faint);
-}
-
-.chartMinMax {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 5px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
   color: var(--text-faint);
 }
 
