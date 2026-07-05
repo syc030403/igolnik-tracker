@@ -32,7 +32,9 @@ export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
 }
 
-export const dynamicParams = false;
+// dynamicParams=false를 여기 두면 하위 [cat] 같은 동적 세그먼트까지 잠겨
+// 온디맨드 ISR 페이지가 프로덕션에서 404가 된다.
+// 잘못된 로케일은 RootLayout의 notFound() 가드가 처리한다.
 
 export async function generateMetadata({
   params,
