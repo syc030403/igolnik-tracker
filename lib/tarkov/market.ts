@@ -69,6 +69,29 @@ interface RawMarketItem {
 /** 시세는 자주 변함 — 5분 ISR */
 export const MARKET_REVALIDATE = 300;
 
+function mapRawItem(it: RawMarketItem): MarketItem {
+  const traderOffers = it.sellFor.filter((s) => s.vendor.normalizedName !== "flea-market");
+  const best = traderOffers.reduce<RawMarketItem["sellFor"][number] | null>(
+    (acc, cur) => (acc === null || cur.priceRUB > acc.priceRUB ? cur : acc),
+    null,
+  );
+  const alias = aliasesFor(MARKET_ALIASES, it.name, it.shortName);
+  return {
+    id: it.id,
+    name: it.name,
+    shortName: it.shortName,
+    searchText: normalizeSearch(`${it.name} ${it.shortName} ${alias}`),
+    iconLink: it.iconLink,
+    width: it.width,
+    height: it.height,
+    fleaBanned: it.types.includes("noFlea"),
+    lastLowPrice: it.lastLowPrice,
+    changeLast48hPercent: it.changeLast48hPercent,
+    bestTraderPrice: best?.priceRUB ?? null,
+    bestTraderName: best?.vendor.name ?? null,
+  };
+}
+
 /** 시세는 게임모드별로 다르므로 모드마다 따로 페칭·캐싱한다 */
 export async function getMarketItems(gameMode: GameMode, lang: Locale): Promise<MarketItem[]> {
   const data = await tarkovQuery<{ items: RawMarketItem[] }>(
@@ -76,27 +99,77 @@ export async function getMarketItems(gameMode: GameMode, lang: Locale): Promise<
     { ids: [...MARKET_ITEM_IDS], gameMode, lang },
     MARKET_REVALIDATE,
   );
+  return data.items.map(mapRawItem);
+}
 
-  return data.items.map((it) => {
-    const traderOffers = it.sellFor.filter((s) => s.vendor.normalizedName !== "flea-market");
-    const best = traderOffers.reduce<RawMarketItem["sellFor"][number] | null>(
-      (acc, cur) => (acc === null || cur.priceRUB > acc.priceRUB ? cur : acc),
-      null,
-    );
-    const alias = aliasesFor(MARKET_ALIASES, it.name, it.shortName);
-    return {
-      id: it.id,
-      name: it.name,
-      shortName: it.shortName,
-      searchText: normalizeSearch(`${it.name} ${it.shortName} ${alias}`),
-      iconLink: it.iconLink,
-      width: it.width,
-      height: it.height,
-      fleaBanned: it.types.includes("noFlea"),
-      lastLowPrice: it.lastLowPrice,
-      changeLast48hPercent: it.changeLast48hPercent,
-      bestTraderPrice: best?.priceRUB ?? null,
-      bestTraderName: best?.vendor.name ?? null,
-    };
-  });
+const HANDBOOK_QUERY = /* GraphQL */ `
+  query HandbookNames($lang: LanguageCode) {
+    handbookCategories(lang: $lang) {
+      name
+      normalizedName
+    }
+  }
+`;
+
+/**
+ * handbookCategoryNames 필터는 요청 언어로 현지화된 이름과 매칭되므로
+ * normalizedName → 해당 언어 이름을 먼저 해석한다. 목록은 거의 안 변함 — 1시간 캐시.
+ */
+async function resolveHandbookName(
+  normalized: string,
+  english: string,
+  lang: Locale,
+): Promise<string> {
+  try {
+    const data = await tarkovQuery<{
+      handbookCategories: { name: string; normalizedName: string }[];
+    }>(HANDBOOK_QUERY, { lang }, 3600);
+    return data.handbookCategories.find((c) => c.normalizedName === normalized)?.name ?? english;
+  } catch {
+    return english;
+  }
+}
+
+const CATEGORY_QUERY = /* GraphQL */ `
+  query MarketCategory($categories: [String!], $gameMode: GameMode, $lang: LanguageCode) {
+    items(handbookCategoryNames: $categories, gameMode: $gameMode, lang: $lang, limit: 3000) {
+      id
+      name
+      shortName
+      types
+      iconLink
+      width
+      height
+      lastLowPrice
+      changeLast48hPercent
+      sellFor {
+        priceRUB
+        vendor {
+          name
+          normalizedName
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * 카테고리 전체 아이템 시세. 파츠처럼 2천 종이 넘는 카테고리도 있으므로
+ * 빌드 타임 프리렌더 없이 온디맨드 ISR로만 쓴다.
+ * 플리마켓·트레이더 어느 쪽에도 가격이 없는 아이템(기본 주머니 등)은 뺀다.
+ */
+export async function getMarketItemsByCategory(
+  category: { normalized: string; english: string },
+  gameMode: GameMode,
+  lang: Locale,
+): Promise<MarketItem[]> {
+  const localizedName = await resolveHandbookName(category.normalized, category.english, lang);
+  const data = await tarkovQuery<{ items: RawMarketItem[] }>(
+    CATEGORY_QUERY,
+    { categories: [localizedName], gameMode, lang },
+    MARKET_REVALIDATE,
+  );
+  return data.items
+    .map(mapRawItem)
+    .filter((it) => it.lastLowPrice != null || it.bestTraderPrice != null);
 }

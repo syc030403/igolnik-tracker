@@ -56,6 +56,12 @@ export interface Dict {
   ttClose: string;
 
   marketTitle: string;
+  /** 카테고리 칩 라벨 (slug → 라벨) */
+  catPopular: string;
+  categories: Record<string, string>;
+  /** {cat}/{mode} 치환 */
+  metaCatTitle: string;
+  metaCatDesc: string;
   perSlot: string;
   fleaPrice: string;
   changeRate: string;
@@ -135,6 +141,20 @@ const ko: Dict = {
   ttClose: "종",
 
   marketTitle: "아이템 시세",
+  catPopular: "인기",
+  categories: {
+    barter: "바터템",
+    keys: "열쇠",
+    meds: "의료",
+    food: "식량",
+    gear: "장비",
+    weapons: "무기",
+    mods: "파츠",
+    special: "특수장비",
+    info: "정보템",
+  },
+  metaCatTitle: "타르코프 {cat} 시세 — 플리마켓 · 트레이더 가격 ({mode})",
+  metaCatDesc: "Escape from Tarkov {cat} 실시간 시세({mode}). 플리마켓 가격, 트레이더 최고 매입가, 슬롯당 가격, 변동률을 정렬해서 비교.",
   perSlot: "슬롯당",
   fleaPrice: "플리가",
   changeRate: "변동률",
@@ -219,6 +239,20 @@ const en: Dict = {
   ttClose: "C",
 
   marketTitle: "Item prices",
+  catPopular: "Popular",
+  categories: {
+    barter: "Barter",
+    keys: "Keys",
+    meds: "Meds",
+    food: "Food",
+    gear: "Gear",
+    weapons: "Weapons",
+    mods: "Mods",
+    special: "Special",
+    info: "Info",
+  },
+  metaCatTitle: "Tarkov {cat} Prices — Flea & Trader ({mode})",
+  metaCatDesc: "Live Escape from Tarkov {cat} prices ({mode}). Compare flea market price, best trader sell price, price per slot and change rate.",
   perSlot: "Per slot",
   fleaPrice: "Flea",
   changeRate: "Change",
@@ -303,6 +337,20 @@ const ja: Dict = {
   ttClose: "終",
 
   marketTitle: "アイテム相場",
+  catPopular: "人気",
+  categories: {
+    barter: "バーター品",
+    keys: "鍵",
+    meds: "医療品",
+    food: "食料",
+    gear: "装備",
+    weapons: "武器",
+    mods: "パーツ",
+    special: "特殊装備",
+    info: "情報アイテム",
+  },
+  metaCatTitle: "タルコフ {cat} 相場 — フリマ・トレーダー ({mode})",
+  metaCatDesc: "Escape from Tarkov {cat} のリアルタイム相場（{mode}）。フリマ価格・トレーダー最高売値・スロット単価・変動率を比較。",
   perSlot: "スロット単価",
   fleaPrice: "フリマ",
   changeRate: "変動率",
@@ -387,6 +435,20 @@ const ru: Dict = {
   ttClose: "З",
 
   marketTitle: "Цены предметов",
+  catPopular: "Популярное",
+  categories: {
+    barter: "Обмен",
+    keys: "Ключи",
+    meds: "Медицина",
+    food: "Еда",
+    gear: "Снаряжение",
+    weapons: "Оружие",
+    mods: "Моды",
+    special: "Спецснаряжение",
+    info: "Информация",
+  },
+  metaCatTitle: "Цены Таркова: {cat} — барахолка и торговцы ({mode})",
+  metaCatDesc: "Актуальные цены Escape from Tarkov: {cat} ({mode}). Барахолка, лучшая цена торговца, цена за слот и изменение.",
   perSlot: "За слот",
   fleaPrice: "Барахолка",
   changeRate: "Изменение",
@@ -470,6 +532,20 @@ const zh: Dict = {
   ttClose: "收",
 
   marketTitle: "物品行情",
+  catPopular: "热门",
+  categories: {
+    barter: "交易品",
+    keys: "钥匙",
+    meds: "医疗",
+    food: "食物",
+    gear: "装备",
+    weapons: "武器",
+    mods: "配件",
+    special: "特殊装备",
+    info: "情报物品",
+  },
+  metaCatTitle: "塔科夫{cat}行情 — 跳蚤市场·商人 ({mode})",
+  metaCatDesc: "逃离塔科夫{cat}实时行情（{mode}）。对比跳蚤市场价、商人最高收购价、每格价格与涨跌幅。",
   perSlot: "每格",
   fleaPrice: "跳蚤",
   changeRate: "涨跌",

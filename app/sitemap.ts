@@ -1,11 +1,16 @@
 import type { MetadataRoute } from "next";
 import { LOCALES, localePath } from "@/lib/i18n/locales";
+import { MARKET_CATEGORIES } from "@/lib/tarkov/categories";
 import { SITE_URL } from "@/lib/site";
 
 const PATHS: { path: string; priority: number }[] = [
   { path: "/", priority: 1 },
   { path: "/market", priority: 0.8 },
   { path: "/market/pve", priority: 0.8 },
+  ...MARKET_CATEGORIES.flatMap((c) => [
+    { path: `/market/${c.slug}`, priority: 0.7 },
+    { path: `/market/pve/${c.slug}`, priority: 0.7 },
+  ]),
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

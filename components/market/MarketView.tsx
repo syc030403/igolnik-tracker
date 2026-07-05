@@ -10,12 +10,22 @@ import { useSearch } from "@/components/SearchProvider";
 import { fmtChangePercent, fmtRub } from "@/lib/format";
 import { localePath } from "@/lib/i18n/locales";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
+import { MARKET_CATEGORIES, type CategorySlug } from "@/lib/tarkov/categories";
 import type { GameMode, MarketItem } from "@/lib/tarkov/types";
 import styles from "./MarketView.module.css";
 
 type SortKey = "perSlot" | "flea" | "change";
 
-export default function MarketView({ items, mode }: { items: MarketItem[]; mode: GameMode }) {
+export default function MarketView({
+  items,
+  mode,
+  cat = null,
+}: {
+  items: MarketItem[];
+  mode: GameMode;
+  /** null = 인기(큐레이션) */
+  cat?: CategorySlug | null;
+}) {
   const { lang, dict } = useI18n();
   const { query } = useSearch();
   const [sort, setSort] = useState<SortKey>("perSlot");
@@ -38,8 +48,29 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
     return list.sort((a, b) => val(b) - val(a));
   }, [items, query, sort]);
 
+  const modeBase = mode === "pve" ? "/market/pve" : "/market";
+
   return (
     <section>
+      {/* 카테고리 칩 — 탄약표의 캘리버 칩과 동일한 패턴 (URL 분리로 SEO) */}
+      <nav className={styles.chips} aria-label={dict.marketTitle}>
+        <Link
+          href={localePath(lang, modeBase)}
+          className={cat === null ? styles.chipActive : styles.chip}
+        >
+          {dict.catPopular}
+        </Link>
+        {MARKET_CATEGORIES.map((c) => (
+          <Link
+            key={c.slug}
+            href={localePath(lang, `${modeBase}/${c.slug}`)}
+            className={cat === c.slug ? styles.chipActive : styles.chip}
+          >
+            {dict.categories[c.slug] ?? c.slug}
+          </Link>
+        ))}
+      </nav>
+
       <div className={styles.controls}>
         <h2 className={styles.title}>
           {dict.marketTitle}<span className={styles.count}>{rows.length}{dict.kindsSuffix}</span>
@@ -47,13 +78,13 @@ export default function MarketView({ items, mode }: { items: MarketItem[]; mode:
         {/* 모드별 URL 분리 (SEO) — 클라이언트 상태가 아니라 링크 이동 */}
         <nav className={styles.modeSeg} aria-label={dict.modeAria}>
           <Link
-            href={localePath(lang, "/market")}
+            href={localePath(lang, cat ? `/market/${cat}` : "/market")}
             className={mode === "regular" ? styles.modeActive : styles.modeBtn}
           >
             PvP
           </Link>
           <Link
-            href={localePath(lang, "/market/pve")}
+            href={localePath(lang, cat ? `/market/pve/${cat}` : "/market/pve")}
             className={mode === "pve" ? styles.modeActive : styles.modeBtn}
           >
             PvE

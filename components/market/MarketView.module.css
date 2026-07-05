@@ -1,3 +1,39 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.chip,
+.chipActive {
+  padding: 6px 13px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.chip {
+  border: 1px solid var(--border-3);
+  background: var(--surface-chip);
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.chip:hover {
+  border-color: var(--gold);
+}
+
+.chipActive {
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: var(--bg);
+  font-weight: 700;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -116,6 +152,9 @@
   border: 1px solid var(--border);
   border-radius: 3px;
   cursor: pointer;
+  /* 카테고리 페이지는 수천 장까지 렌더된다 — 화면 밖 카드는 렌더 생략 */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 70px;
 }
 
 .card:hover {
