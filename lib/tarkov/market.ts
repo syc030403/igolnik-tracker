@@ -78,8 +78,9 @@ function mapRawItem(it: RawMarketItem): MarketItem {
   const alias = aliasesFor(MARKET_ALIASES, it.name, it.shortName);
   return {
     id: it.id,
-    name: it.name,
-    shortName: it.shortName,
+    // API 데이터에 끝 공백이 붙은 이름이 있다 (예: "USEC 인식표 ")
+    name: it.name.trim(),
+    shortName: it.shortName.trim(),
     searchText: normalizeSearch(`${it.name} ${it.shortName} ${alias}`),
     iconLink: it.iconLink,
     width: it.width,
@@ -169,7 +170,25 @@ export async function getMarketItemsByCategory(
     { categories: [localizedName], gameMode, lang },
     MARKET_REVALIDATE,
   );
-  return data.items
+  const items = data.items
     .map(mapRawItem)
     .filter((it) => it.lastLowPrice != null || it.bestTraderPrice != null);
+  return dedupeTraderOnlyVariants(items);
+}
+
+/**
+ * 이름까지 완전히 같은 트레이더 전용 변형 정리 (독택 이벤트/프레스티지 변형 등 —
+ * 영문 기준으로도 동일명이라 구분 정보가 없다). 트레이더가가 가장 높은 1개만 남긴다.
+ * 플리 가격이 있는 동명 아이템(포스터 등 실제 구분되는 매물)은 그대로 둔다.
+ */
+function dedupeTraderOnlyVariants(items: MarketItem[]): MarketItem[] {
+  const bestByName = new Map<string, MarketItem>();
+  for (const it of items) {
+    if (it.lastLowPrice != null) continue;
+    const cur = bestByName.get(it.name);
+    if (!cur || (it.bestTraderPrice ?? 0) > (cur.bestTraderPrice ?? 0)) {
+      bestByName.set(it.name, it);
+    }
+  }
+  return items.filter((it) => it.lastLowPrice != null || bestByName.get(it.name) === it);
 }
