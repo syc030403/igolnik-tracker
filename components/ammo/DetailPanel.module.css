@@ -199,6 +199,8 @@
 
 .chart {
   width: 100%;
+  /* 탄약표 상세 패널과 시세 카드의 그래프 크기 통일 — 렌더 폭을 맞춘다 */
+  max-width: 300px;
   height: auto;
   display: block;
   touch-action: pan-y;

@@ -141,7 +141,7 @@ export default function PriceChart({
       ) : !candles ? (
         <div className={styles.chartEmpty}>{dict.loading}</div>
       ) : (
-        <LineChart candles={candles} range={range} />
+        <LineChart candles={candles} range={range} up={change ? change.pct >= 0 : true} />
       )}
     </>
   );
@@ -170,10 +170,11 @@ function toCandles(points: PricePoint[], bucketMs: number): Candle[] {
     });
 }
 
-// 뷰박스 좌표계 (viewBox 고정, 가로만 스케일). 높이를 키워 크게 렌더.
+// 뷰박스 좌표계 (viewBox 고정, 가로만 스케일).
+// 탄약표·시세 차트를 통일하려고 .chart에 max-width를 두어 렌더 폭을 맞춘다.
 const W = 274;
-const H = 176;
-const M = { top: 10, right: 46, bottom: 18, left: 6 } as const;
+const H = 216;
+const M = { top: 11, right: 47, bottom: 19, left: 6 } as const;
 const PLOT_W = W - M.left - M.right;
 const PLOT_H = H - M.top - M.bottom;
 
@@ -191,7 +192,15 @@ function fmtTooltipTime(ts: number, range: Range): string {
   return `${md} ${String(d.getHours()).padStart(2, "0")}:00`;
 }
 
-function LineChart({ candles, range }: { candles: Candle[]; range: Range }) {
+function LineChart({
+  candles,
+  range,
+  up,
+}: {
+  candles: Candle[];
+  range: Range;
+  up: boolean;
+}) {
   const { dict } = useI18n();
   const [hover, setHover] = useState<number | null>(null);
 
@@ -238,11 +247,9 @@ function LineChart({ candles, range }: { candles: Candle[]; range: Range }) {
     return { xOf, yOf, min, max, line, area, xTicks };
   }, [candles, range]);
 
-  const first = candles[0];
   const last = candles[candles.length - 1];
   const lastY = yOf(last.close);
-  // 선 색은 보고 있는 구간의 시작 대비 끝 추세
-  const up = last.close >= first.close;
+  // 선·현재가 태그 색은 변동률(+초록/−빨강)과 일치시킨다
   const color = up ? "var(--up)" : "var(--down)";
   const yTicks = [
     { y: yOf(max), label: fmtRubCompact(max) },
