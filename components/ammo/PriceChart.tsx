@@ -141,7 +141,7 @@ export default function PriceChart({
       ) : !candles ? (
         <div className={styles.chartEmpty}>{dict.loading}</div>
       ) : (
-        <CandleChart candles={candles} range={range} />
+        <LineChart candles={candles} range={range} />
       )}
     </>
   );
@@ -170,10 +170,10 @@ function toCandles(points: PricePoint[], bucketMs: number): Candle[] {
     });
 }
 
-// 뷰박스 좌표계 (viewBox 고정, 가로만 스케일)
+// 뷰박스 좌표계 (viewBox 고정, 가로만 스케일). 높이를 키워 크게 렌더.
 const W = 274;
-const H = 118;
-const M = { top: 8, right: 42, bottom: 16, left: 4 } as const;
+const H = 176;
+const M = { top: 10, right: 46, bottom: 18, left: 6 } as const;
 const PLOT_W = W - M.left - M.right;
 const PLOT_H = H - M.top - M.bottom;
 
@@ -191,24 +191,23 @@ function fmtTooltipTime(ts: number, range: Range): string {
   return `${md} ${String(d.getHours()).padStart(2, "0")}:00`;
 }
 
-function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
+function LineChart({ candles, range }: { candles: Candle[]; range: Range }) {
   const { dict } = useI18n();
   const [hover, setHover] = useState<number | null>(null);
 
-  const { xOf, yOf, min, max, candleW, xTicks } = useMemo(() => {
-    // 플리마켓 스캔 데이터에는 말도 안 되는 단발 호가(평소의 10배 등)가 끼어든다.
-    // 최저/최고의 5~95 퍼센타일로 스케일을 잡고 그 밖 꼬리는 플롯 경계에서 잘라
-    // 이상치 하나가 차트 전체를 눌러버리지 않게 한다. 마지막 종가는 항상 포함.
+  const { xOf, yOf, min, max, line, area, xTicks } = useMemo(() => {
+    // 꺾은선은 각 구간의 종가를 잇는다.
+    // 플리마켓 스캔 데이터에는 단발 이상 호가(평소의 10배 등)가 끼므로
+    // 종가의 5~95 퍼센타일로 스케일을 잡고 그 밖은 플롯 경계에 클램프한다.
+    const closes = candles.map((c) => c.close);
     const q = (arr: number[], f: number) => {
       const s = [...arr].sort((a, b) => a - b);
       return s[Math.min(s.length - 1, Math.max(0, Math.round((s.length - 1) * f)))];
     };
-    const lows = candles.map((c) => c.low);
-    const highs = candles.map((c) => c.high);
-    const lastClose = candles[candles.length - 1].close;
-    const dataMin = Math.min(q(lows, 0.05), lastClose);
-    const dataMax = Math.max(q(highs, 0.95), lastClose);
-    // Y축 도메인 보정: 변동 폭이 작을 때 미세 등락이 급등락처럼 보이지 않도록
+    const lastClose = closes[closes.length - 1];
+    const dataMin = Math.min(q(closes, 0.05), lastClose);
+    const dataMax = Math.max(q(closes, 0.95), lastClose);
+    // 변동 폭이 작을 때 미세 등락이 급등락처럼 보이지 않도록
     // 중간값의 최소 12% 범위를 보장하고 위아래 8% 여유를 둔다. 가격은 음수 불가.
     const mid = (dataMin + dataMax) / 2;
     const rawSpan = Math.max(dataMax - dataMin, Math.max(mid * 0.12, 1));
@@ -221,23 +220,30 @@ function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
     const t1 = candles[candles.length - 1].t + bucketMs;
     const tSpan = t1 - t0;
     const xOf = (t: number) => M.left + ((t + bucketMs / 2 - t0) / tSpan) * PLOT_W;
-    // 도메인 밖 값(이상치 꼬리)은 플롯 경계에 클램프
     const yOf = (price: number) => {
       const y = M.top + (1 - (price - min) / (max - min)) * PLOT_H;
       return Math.max(M.top, Math.min(M.top + PLOT_H, y));
     };
-    const candleW = Math.max(2, Math.min(14, (bucketMs / tSpan) * PLOT_W * 0.65));
+
+    const pts = candles.map((c) => [xOf(c.t), yOf(c.close)] as const);
+    const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+    const baseY = M.top + PLOT_H;
+    const area = `${pts[0][0].toFixed(1)},${baseY} ${line} ${pts[pts.length - 1][0].toFixed(1)},${baseY}`;
 
     const xTicks = [0, 0.5, 1].map((f) => ({
       x: M.left + f * PLOT_W,
       label: fmtTick(t0 + f * (t1 - t0), range),
       anchor: f === 0 ? "start" : f === 1 ? "end" : "middle",
     }));
-    return { xOf, yOf, min, max, candleW, xTicks };
+    return { xOf, yOf, min, max, line, area, xTicks };
   }, [candles, range]);
 
+  const first = candles[0];
   const last = candles[candles.length - 1];
   const lastY = yOf(last.close);
+  // 선 색은 보고 있는 구간의 시작 대비 끝 추세
+  const up = last.close >= first.close;
+  const color = up ? "var(--up)" : "var(--down)";
   const yTicks = [
     { y: yOf(max), label: fmtRubCompact(max) },
     { y: yOf((min + max) / 2), label: fmtRubCompact((min + max) / 2) },
@@ -291,7 +297,7 @@ function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
         <text
           key={i}
           x={t.x}
-          y={H - 4}
+          y={H - 5}
           textAnchor={t.anchor as "start" | "middle" | "end"}
           className={styles.axisLabel}
         >
@@ -299,27 +305,16 @@ function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
         </text>
       ))}
 
-      {/* 캔들: 위꼬리/아래꼬리 + 몸통 */}
-      {candles.map((c, i) => {
-        const up = c.close >= c.open;
-        const color = up ? "var(--up)" : "var(--down)";
-        const x = xOf(c.t);
-        const bodyTop = yOf(Math.max(c.open, c.close));
-        const bodyBot = yOf(Math.min(c.open, c.close));
-        return (
-          <g key={c.t} opacity={hover === null || hover === i ? 1 : 0.55}>
-            <line x1={x} x2={x} y1={yOf(c.high)} y2={yOf(c.low)} stroke={color} strokeWidth="1" />
-            <rect
-              x={x - candleW / 2}
-              y={bodyTop}
-              width={candleW}
-              height={Math.max(1, bodyBot - bodyTop)}
-              fill={color}
-              rx={0.5}
-            />
-          </g>
-        );
-      })}
+      {/* 영역 + 꺾은선 */}
+      <polygon points={area} fill={color} fillOpacity="0.09" stroke="none" />
+      <polyline
+        points={line}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
 
       {/* 현재가(마지막 종가) 태그 */}
       <line
@@ -327,30 +322,26 @@ function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
         x2={M.left + PLOT_W}
         y1={lastY}
         y2={lastY}
-        stroke={last.close >= last.open ? "var(--up)" : "var(--down)"}
+        stroke={color}
         strokeWidth="0.6"
         strokeDasharray="2 3"
         opacity="0.7"
       />
+      <circle cx={xOf(last.t)} cy={lastY} r="2.4" fill={color} />
       <rect
         x={W - M.right + 2}
         y={lastY - 7}
         width={M.right - 4}
         height={14}
         rx={2}
-        fill={last.close >= last.open ? "var(--up)" : "var(--down)"}
+        fill={color}
         fillOpacity="0.18"
       />
-      <text
-        x={W - M.right + 5}
-        y={lastY + 3}
-        className={styles.axisLabelStrong}
-        fill={last.close >= last.open ? "var(--up)" : "var(--down)"}
-      >
+      <text x={W - M.right + 5} y={lastY + 3} className={styles.axisLabelStrong} fill={color}>
         {fmtRubCompact(last.close)}
       </text>
 
-      {/* 호버 십자선 + 시고저종 툴팁 */}
+      {/* 호버 십자선 + 툴팁(시각 · 종가) */}
       {hv && (
         <g pointerEvents="none">
           <line
@@ -362,12 +353,14 @@ function CandleChart({ candles, range }: { candles: Candle[]; range: Range }) {
             strokeWidth="0.8"
             strokeDasharray="3 2"
           />
-          <text x={M.left + 2} y={M.top + 8} className={styles.tooltipText}>
-            {fmtTooltipTime(hv.t, range)} · {dict.ttOpen} {fmtRubCompact(hv.open)} {dict.ttHigh} {fmtRubCompact(hv.high)}
-          </text>
-          <text x={M.left + 2} y={M.top + 19} className={styles.tooltipText}>
-            {dict.ttLow} {fmtRubCompact(hv.low)} {dict.ttClose} {fmtRubCompact(hv.close)} (
-            {fmtChangePercent(((hv.close - hv.open) / hv.open) * 100)})
+          <circle cx={xOf(hv.t)} cy={yOf(hv.close)} r="2.6" fill={color} stroke="var(--bg)" strokeWidth="1" />
+          <text
+            x={xOf(hv.t) < W / 2 ? xOf(hv.t) + 5 : xOf(hv.t) - 5}
+            y={M.top + 9}
+            textAnchor={xOf(hv.t) < W / 2 ? "start" : "end"}
+            className={styles.tooltipText}
+          >
+            {fmtTooltipTime(hv.t, range)} · {fmtRubCompact(hv.close)}
           </text>
         </g>
       )}
