@@ -1,0 +1,23 @@
+.rail {
+  position: fixed;
+  top: 120px;
+  z-index: 10;
+  width: 160px;
+}
+
+/* 본문 폭 1160px 기준, 그 바깥 20px 여백에 배치.
+   50% - 580(본문 절반) - 20(간격) - 160(광고폭) = 50% - 760px */
+.left {
+  left: calc(50% - 760px);
+}
+
+.right {
+  right: calc(50% - 760px);
+}
+
+/* 사이드 광고가 콘텐츠를 침범하지 않을 만큼 넓을 때만 노출 (1160 + 400 여유) */
+@media (max-width: 1559px) {
+  .rail {
+    display: none;
+  }
+}

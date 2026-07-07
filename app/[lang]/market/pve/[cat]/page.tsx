@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import AdSlot from "@/components/AdSlot";
+import AdBanner from "@/components/AdBanner";
 import DataError from "@/components/DataError";
 import MarketView from "@/components/market/MarketView";
 import { getDict } from "@/lib/i18n/dictionaries";
@@ -63,9 +63,11 @@ export default async function MarketPveCategoryPage({ params }: Params) {
 
   return (
     <>
-      <div className={styles.topAd}>
-        <AdSlot />
-      </div>
+      {items && (
+        <div className={styles.topAd}>
+          <AdBanner />
+        </div>
+      )}
       <main className={styles.main}>
         <h1 className={styles.srOnly}>
           {dict.metaCatTitle.replace("{cat}", label).replace("{mode}", "PVE")}

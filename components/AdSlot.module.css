@@ -1,7 +1,26 @@
-.slot {
-  width: 100%;
-  max-width: 728px;
-  height: 90px;
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.tag {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  background: var(--bg);
+  padding: 1px 4px;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.placeholder {
   margin: 0 auto;
   border: 1px dashed var(--border-4);
   background: repeating-linear-gradient(
@@ -16,9 +35,11 @@
   justify-content: center;
 }
 
-.label {
+.phLabel {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-faint);
   letter-spacing: 0.04em;
+  text-align: center;
+  padding: 4px;
 }

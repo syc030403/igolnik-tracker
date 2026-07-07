@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
-import AdSlot from "@/components/AdSlot";
+import AdBanner from "@/components/AdBanner";
 import { useI18n } from "@/components/LocaleProvider";
 import PriceChart from "@/components/ammo/PriceChart";
 import { useSearch } from "@/components/SearchProvider";
@@ -178,9 +178,10 @@ export default function MarketView({
                 </div>
               )}
             </article>
-            {i === 5 && rows.length > 7 && (
+            {/* 리스트 중간 광고: 6번째부터 30개 간격, 최대 5개 (정책 안전선) */}
+            {i >= 5 && (i - 5) % 30 === 0 && (i - 5) / 30 < 5 && rows.length > 7 && (
               <div className={styles.midAd}>
-                <AdSlot label="본문 중간" />
+                <AdBanner />
               </div>
             )}
           </Fragment>

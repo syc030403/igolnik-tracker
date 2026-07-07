@@ -1,0 +1,33 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 8px 20px;
+  background: rgba(201, 162, 75, 0.08);
+  border-bottom: 1px solid var(--border);
+}
+
+.text {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+.close {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-3);
+  border-radius: 3px;
+  background: var(--surface-chip);
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--text);
+}

@@ -6,7 +6,7 @@ import { useSearch } from "@/components/SearchProvider";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
 import { penetrationChance, penTier } from "@/lib/tarkov/penetration";
 import type { AmmoEntry, AmmoGroup } from "@/lib/tarkov/types";
-import AdSlot from "@/components/AdSlot";
+import AdBanner from "@/components/AdBanner";
 import DetailPanel from "./DetailPanel";
 import styles from "./AmmoView.module.css";
 
@@ -194,9 +194,12 @@ export default function AmmoView({ groups }: { groups: AmmoGroup[] }) {
         </aside>
       </div>
 
-      <div className={styles.midAd}>
-        <AdSlot label="본문 중간" />
-      </div>
+      {/* 결과가 있을 때만 본문 광고 — 빈 페이지 광고 금지(정책) */}
+      {filtered.length > 0 && (
+        <div className={styles.midAd}>
+          <AdBanner />
+        </div>
+      )}
     </section>
   );
 }

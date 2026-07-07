@@ -10,6 +10,8 @@ export interface Dict {
   navQuest: string;
   soon: string;
   langAria: string;
+  adLabel: string;
+  adblockNotice: string;
 
   all: string;
   sort: string;
@@ -96,6 +98,8 @@ const ko: Dict = {
   navQuest: "퀘스트템",
   soon: "SOON",
   langAria: "언어 선택",
+  adLabel: "AD",
+  adblockNotice: "광고 차단이 감지됐어요. 이 사이트는 광고 수익으로 무료 운영됩니다. 허용해 주시면 큰 도움이 됩니다.",
 
   all: "전체",
   sort: "정렬",
@@ -193,6 +197,8 @@ const en: Dict = {
   navQuest: "Quest items",
   soon: "SOON",
   langAria: "Select language",
+  adLabel: "AD",
+  adblockNotice: "We detected an ad blocker. This site is kept free by ad revenue — allowing ads helps a lot.",
 
   all: "All",
   sort: "Sort",
@@ -291,6 +297,8 @@ const ja: Dict = {
   navQuest: "タスク品",
   soon: "近日",
   langAria: "言語を選択",
+  adLabel: "AD",
+  adblockNotice: "広告ブロックを検出しました。本サイトは広告収益で無料運営しています。許可いただけると助かります。",
 
   all: "すべて",
   sort: "並び替え",
@@ -389,6 +397,8 @@ const ru: Dict = {
   navQuest: "Квестовые",
   soon: "СКОРО",
   langAria: "Выбор языка",
+  adLabel: "AD",
+  adblockNotice: "Обнаружен блокировщик рекламы. Сайт бесплатен за счёт рекламы — отключение блокировщика очень помогает.",
 
   all: "Все",
   sort: "Сортировка",
@@ -487,6 +497,8 @@ const zh: Dict = {
   navQuest: "任务物品",
   soon: "即将上线",
   langAria: "选择语言",
+  adLabel: "AD",
+  adblockNotice: "检测到广告拦截。本站依靠广告收益免费运营，关闭拦截将对我们很有帮助。",
 
   all: "全部",
   sort: "排序",

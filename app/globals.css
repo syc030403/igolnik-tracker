@@ -82,3 +82,13 @@ button {
 a {
   color: inherit;
 }
+
+.bottomBanner {
+  max-width: 1160px;
+  margin: 24px auto 0;
+  padding: 0 20px;
+}
+
+.bottomBanner:empty {
+  display: none;
+}

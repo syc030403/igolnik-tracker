@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { IBM_Plex_Sans_KR, JetBrains_Mono, Oswald } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AdBanner from "@/components/AdBanner";
+import AdBlockNotice from "@/components/AdBlockNotice";
+import SideRails from "@/components/SideRails";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { SearchProvider } from "@/components/SearchProvider";
 import { getDict } from "@/lib/i18n/dictionaries";
@@ -85,8 +88,13 @@ export default async function RootLayout({
       <body>
         <LocaleProvider lang={lang} dict={dict}>
           <SearchProvider>
+            <AdBlockNotice />
             <Header />
+            <SideRails />
             {children}
+            <div className="bottomBanner">
+              <AdBanner />
+            </div>
             <Footer notice={dict.footerNotice} />
           </SearchProvider>
         </LocaleProvider>

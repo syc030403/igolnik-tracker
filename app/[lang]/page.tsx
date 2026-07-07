@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AdSlot from "@/components/AdSlot";
+import AdBanner from "@/components/AdBanner";
 import DataError from "@/components/DataError";
 import AmmoView from "@/components/ammo/AmmoView";
 import { getDict } from "@/lib/i18n/dictionaries";
@@ -49,9 +49,11 @@ export default async function AmmoPage({ params }: { params: Promise<{ lang: str
 
   return (
     <>
-      <div className={styles.topAd}>
-        <AdSlot />
-      </div>
+      {groups && (
+        <div className={styles.topAd}>
+          <AdBanner />
+        </div>
+      )}
       <main className={styles.main}>
         <h1 className={styles.srOnly}>{dict.h1Home}</h1>
         {groups ? <AmmoView groups={groups} /> : <DataError title={dict.errTitle} desc={dict.errDesc} />}

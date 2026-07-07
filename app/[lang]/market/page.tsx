@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AdSlot from "@/components/AdSlot";
+import AdBanner from "@/components/AdBanner";
 import DataError from "@/components/DataError";
 import MarketView from "@/components/market/MarketView";
 import { getDict } from "@/lib/i18n/dictionaries";
@@ -45,9 +45,11 @@ export default async function MarketPage({ params }: { params: Promise<{ lang: s
 
   return (
     <>
-      <div className={styles.topAd}>
-        <AdSlot />
-      </div>
+      {items && (
+        <div className={styles.topAd}>
+          <AdBanner />
+        </div>
+      )}
       <main className={styles.main}>
         <h1 className={styles.srOnly}>{dict.h1Market}</h1>
         {items ? <MarketView items={items} mode="regular" /> : <DataError title={dict.errTitle} desc={dict.errDesc} />}
