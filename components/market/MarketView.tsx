@@ -8,6 +8,7 @@ import { useI18n } from "@/components/LocaleProvider";
 import PriceChart from "@/components/ammo/PriceChart";
 import { useSearch } from "@/components/SearchProvider";
 import { fmtChangePercent, fmtRub } from "@/lib/format";
+import { SHOW_ITEM_ICONS } from "@/lib/flags";
 import { localePath } from "@/lib/i18n/locales";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
 import { MARKET_CATEGORIES, type CategorySlug } from "@/lib/tarkov/categories";
@@ -124,7 +125,7 @@ export default function MarketView({
               aria-expanded={expandedId === it.id}
             >
               <div className={styles.icon}>
-                {it.iconLink ? (
+                {SHOW_ITEM_ICONS && it.iconLink ? (
                   <Image src={it.iconLink} alt={it.name} width={46} height={46} unoptimized={false} />
                 ) : (
                   <span className={styles.iconFallback}>{it.shortName.slice(0, 5)}</span>

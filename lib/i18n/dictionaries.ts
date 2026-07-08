@@ -169,7 +169,7 @@ const ko: Dict = {
   modeAria: "게임모드 선택",
 
   footerNotice:
-    "본 사이트는 비공식 팬 제작 사이트이며, Battlestate Games 및 Escape from Tarkov와 어떠한 제휴 관계도 없습니다. 모든 상표권은 각 소유자에게 있습니다.",
+    "본 사이트는 비공식 팬 제작 사이트이며, Battlestate Games 및 Escape from Tarkov와 어떠한 제휴 관계도 없습니다. 모든 게임 콘텐츠·이미지·상표의 저작권은 Battlestate Games Limited에 있습니다.",
 
   errTitle: "데이터를 불러오지 못했습니다",
   errDesc: "tarkov.dev API가 일시적으로 응답하지 않습니다. 잠시 후 새로고침해 주세요.",
@@ -269,7 +269,7 @@ const en: Dict = {
   modeAria: "Select game mode",
 
   footerNotice:
-    "This is an unofficial fan-made site and is not affiliated with Battlestate Games or Escape from Tarkov. All trademarks belong to their respective owners.",
+    "This is an unofficial fan-made site and is not affiliated with Battlestate Games or Escape from Tarkov. All game content, images, and trademarks are the property of Battlestate Games Limited.",
 
   errTitle: "Failed to load data",
   errDesc: "The tarkov.dev API is temporarily unavailable. Please refresh in a moment.",
@@ -369,7 +369,7 @@ const ja: Dict = {
   modeAria: "ゲームモード選択",
 
   footerNotice:
-    "本サイトは非公式のファンメイドサイトであり、Battlestate Games および Escape from Tarkov とは一切提携していません。すべての商標は各所有者に帰属します。",
+    "本サイトは非公式のファンメイドサイトであり、Battlestate Games および Escape from Tarkov とは一切提携していません。すべてのゲームコンテンツ・画像・商標の著作権は Battlestate Games Limited に帰属します。",
 
   errTitle: "データを取得できませんでした",
   errDesc: "tarkov.dev API が一時的に応答していません。しばらくしてから再読み込みしてください。",
@@ -469,7 +469,7 @@ const ru: Dict = {
   modeAria: "Выбор режима игры",
 
   footerNotice:
-    "Это неофициальный фанатский сайт, не связанный с Battlestate Games и Escape from Tarkov. Все товарные знаки принадлежат их владельцам.",
+    "Это неофициальный фанатский сайт, не связанный с Battlestate Games и Escape from Tarkov. Весь игровой контент, изображения и товарные знаки принадлежат Battlestate Games Limited.",
 
   errTitle: "Не удалось загрузить данные",
   errDesc: "API tarkov.dev временно недоступен. Обновите страницу чуть позже.",
@@ -568,7 +568,7 @@ const zh: Dict = {
   modeAria: "选择游戏模式",
 
   footerNotice:
-    "本站为非官方粉丝网站，与 Battlestate Games 及《逃离塔科夫》无任何关联。所有商标归各自所有者所有。",
+    "本站为非官方粉丝网站，与 Battlestate Games 及《逃离塔科夫》无任何关联。所有游戏内容、图片及商标的版权归 Battlestate Games Limited 所有。",
 
   errTitle: "数据加载失败",
   errDesc: "tarkov.dev API 暂时无响应，请稍后刷新。",
