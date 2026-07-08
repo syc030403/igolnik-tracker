@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { IBM_Plex_Sans_KR, JetBrains_Mono, Oswald } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,8 +9,10 @@ import AdBlockNotice from "@/components/AdBlockNotice";
 import SideRails from "@/components/SideRails";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { SearchProvider } from "@/components/SearchProvider";
+import { ADSENSE_CLIENT } from "@/lib/ads";
 import { getDict } from "@/lib/i18n/dictionaries";
-import { LOCALES, isLocale, type Locale } from "@/lib/i18n/locales";
+import { getPrivacy } from "@/lib/i18n/privacy";
+import { LOCALES, isLocale, localePath, type Locale } from "@/lib/i18n/locales";
 import { SITE_URL } from "@/lib/site";
 import "../globals.css";
 
@@ -86,9 +89,18 @@ export default async function RootLayout({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const dict = getDict(lang);
+  const privacy = getPrivacy(lang);
 
   return (
     <html lang={lang} className={`${plexKr.variable} ${oswald.variable} ${jbMono.variable}`}>
+      {ADSENSE_CLIENT && (
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      )}
       <body>
         <LocaleProvider lang={lang} dict={dict}>
           <SearchProvider>
@@ -99,7 +111,11 @@ export default async function RootLayout({
             <div className="bottomBanner">
               <AdBanner />
             </div>
-            <Footer notice={dict.footerNotice} />
+            <Footer
+              notice={dict.footerNotice}
+              privacyHref={localePath(lang, "/privacy")}
+              privacyLabel={privacy.navLabel}
+            />
           </SearchProvider>
         </LocaleProvider>
       </body>

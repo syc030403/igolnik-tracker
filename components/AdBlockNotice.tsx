@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useI18n } from "./LocaleProvider";
-import { ADFIT_ENABLED } from "@/lib/ads";
+import { ADS_ENABLED } from "@/lib/ads";
 import styles from "./AdBlockNotice.module.css";
 
 /**
@@ -16,7 +16,7 @@ export default function AdBlockNotice() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (!ADFIT_ENABLED) return;
+    if (!ADS_ENABLED) return;
     // 광고 차단기가 흔히 숨기는 클래스명의 미끼 요소를 만들어 렌더를 확인
     const bait = document.createElement("div");
     bait.className = "adsbox ad-banner ad-placement pub_300x250";

@@ -46,16 +46,17 @@ npm run build
 | 이름 | 용도 |
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | sitemap/robots/OG의 절대 URL (미설정 시 기본값) |
-| `NEXT_PUBLIC_ADFIT_ENABLED` | `1`이면 광고 렌더 (심사 통과 후) |
-| `NEXT_PUBLIC_ADFIT_UNIT_LEADERBOARD` | 애드핏 광고단위 ID (728×90) |
-| `NEXT_PUBLIC_ADFIT_UNIT_MOBILE` | 애드핏 광고단위 ID (320×100) |
-| `NEXT_PUBLIC_ADFIT_UNIT_RECTANGLE` | 애드핏 광고단위 ID (300×250) |
-| `NEXT_PUBLIC_ADFIT_UNIT_SKYSCRAPER` | 애드핏 광고단위 ID (160×600, 사이드) |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | 애드센스 게시자 ID `ca-pub-XXXX` (설정 시 로더 스크립트 삽입) |
+| `NEXT_PUBLIC_ADSENSE_SLOT_LEADERBOARD` | 광고 슬롯 ID (728×90) |
+| `NEXT_PUBLIC_ADSENSE_SLOT_MOBILE` | 광고 슬롯 ID (320×100) |
+| `NEXT_PUBLIC_ADSENSE_SLOT_RECTANGLE` | 광고 슬롯 ID (300×250) |
+| `NEXT_PUBLIC_ADSENSE_SLOT_SKYSCRAPER` | 광고 슬롯 ID (160×600, 사이드) |
 
-### 광고
+### 광고 (구글 애드센스)
 
 - 슬롯: 상단·하단 배너, 본문 중간, 데스크톱 사이드(160×600)
-- 심사 통과 전에는 렌더하지 않음(프로덕션). 통과 후 위 환경변수 설정 + `public/ads.txt`에 애드핏 발급 라인 입력
+- 심사 절차: `NEXT_PUBLIC_ADSENSE_CLIENT` 설정 → 재배포하면 `<head>`에 로더 삽입 → 애드센스에서 심사 요청. 승인 후 광고 단위 만들어 슬롯 ID 입력. `public/ads.txt`에 애드센스 라인 입력
+- 개인정보처리방침(`/privacy`) 페이지 포함 (애드센스 필수 요건)
 - 정책 안전: 빈/에러 페이지 광고 금지, CLS 방지(규격 예약), 모바일 사이드 제외, 애드블록 안내(하드 차단 아님)
 
 ## 고지

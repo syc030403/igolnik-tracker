@@ -2,14 +2,20 @@
 
 import { useEffect, useRef } from "react";
 import { useI18n } from "./LocaleProvider";
-import { AD_DIMENSIONS, ADFIT_ENABLED, adUnitId, type AdFormat } from "@/lib/ads";
+import { AD_DIMENSIONS, ADSENSE_CLIENT, ADS_ENABLED, adSlotId, type AdFormat } from "@/lib/ads";
 import styles from "./AdSlot.module.css";
 
+declare global {
+  interface Window {
+    adsbygoogle?: unknown[];
+  }
+}
+
 /**
- * 광고 슬롯. 애드핏 심사 통과 전(ADFIT_ENABLED=false)에는
+ * 광고 슬롯(구글 애드센스). 게시자 ID·슬롯 ID가 설정되기 전에는
  *  - 개발: 규격이 보이는 플레이스홀더
  *  - 프로덕션: 아무것도 렌더하지 않음(빈 광고 노출 금지)
- * 통과 후에는 규격만큼 공간을 예약(CLS 방지)하고 애드핏 ins를 렌더한다.
+ * 설정 후에는 규격만큼 공간을 예약(CLS 방지)하고 adsbygoogle ins를 렌더한다.
  */
 export default function AdSlot({
   format,
@@ -20,21 +26,18 @@ export default function AdSlot({
 }) {
   const { dict } = useI18n();
   const { width, height } = AD_DIMENSIONS[format];
-  const unit = adUnitId(format);
-  const ref = useRef<HTMLModElement>(null);
+  const slot = adSlotId(format);
+  const insRef = useRef<HTMLModElement>(null);
 
-  const active = ADFIT_ENABLED && !!unit;
+  const active = ADS_ENABLED && !!slot;
 
   useEffect(() => {
-    if (!active || !ref.current) return;
-    // 애드핏 스크립트는 마운트 시 삽입 — SPA 라우팅에서도 매번 새 ins를 스캔한다.
-    const s = document.createElement("script");
-    s.src = "https://t1.daumcdn.net/kas/static/ba.min.js";
-    s.async = true;
-    ref.current.after(s);
-    return () => {
-      s.remove();
-    };
+    if (!active) return;
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch {
+      // 광고 차단기 등으로 push 실패 시 무시
+    }
   }, [active]);
 
   if (active) {
@@ -43,15 +46,13 @@ export default function AdSlot({
         className={className ? `${styles.wrap} ${className}` : styles.wrap}
         style={{ minHeight: height }}
       >
-        <span className={styles.tag}>AD</span>
-        {/* eslint-disable-next-line @next/next/no-unknown-property */}
+        <span className={styles.tag}>{dict.adLabel}</span>
         <ins
-          ref={ref}
-          className="kakao_ad_area"
-          style={{ display: "none" }}
-          data-ad-unit={unit}
-          data-ad-width={width}
-          data-ad-height={height}
+          ref={insRef}
+          className="adsbygoogle"
+          style={{ display: "inline-block", width, height }}
+          data-ad-client={ADSENSE_CLIENT}
+          data-ad-slot={slot}
         />
       </div>
     );
