@@ -54,6 +54,10 @@ export async function generateMetadata({
       template: "%s | Igolnik Tracker",
     },
     description: dict.metaHomeDesc,
+    // 검색엔진 소유확인 (구글 서치콘솔 / 네이버 서치어드바이저)
+    verification: {
+      google: "M5xsUL3S3W6nv49pfe-08AjDlIRwjBI8bDm5lcZIwdw",
+    },
     keywords: [
       "타르코프",
       "타르코프 탄약",
