@@ -60,6 +60,9 @@ export async function generateMetadata({
     // 검색엔진 소유확인 (구글 서치콘솔 / 네이버 서치어드바이저)
     verification: {
       google: "M5xsUL3S3W6nv49pfe-08AjDlIRwjBI8bDm5lcZIwdw",
+      other: {
+        "naver-site-verification": "8293514980088bef342b72084080de81a75d20e9",
+      },
     },
     keywords: [
       "타르코프",
