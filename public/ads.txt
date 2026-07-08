@@ -1,5 +1,1 @@
-# ads.txt — Authorized Digital Sellers
-# 구글 애드센스 승인 후, 아래 라인의 pub-XXXX를 본인 게시자 ID로 교체하세요.
-# (게시자 ID는 애드센스 대시보드 계정 정보에서 확인: ca-pub- 뒤 숫자)
-#
-# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-1378700572067675, DIRECT, f08c47fec0942fa0
