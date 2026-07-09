@@ -246,13 +246,15 @@
 
 .needCount {
   flex: none;
+  min-width: 62px;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--gold-bright);
 }
 
 .firTag {
