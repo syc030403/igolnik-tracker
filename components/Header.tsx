@@ -89,10 +89,12 @@ export default function Header() {
           >
             {dict.navMarket}
           </Link>
-          <span className={styles.tabDisabled} aria-disabled title={dict.soon}>
+          <Link
+            href={localePath(lang, "/quests")}
+            className={basePath.startsWith("/quests") ? styles.tabActive : styles.tab}
+          >
             {dict.navQuest}
-            <span className={styles.soon}>{dict.soon}</span>
-          </span>
+          </Link>
 
           <div className={styles.langWrap} ref={langRef}>
             <button

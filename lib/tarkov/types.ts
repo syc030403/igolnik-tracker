@@ -93,3 +93,31 @@ export interface PricePoint {
   price: number;
   timestamp: number;
 }
+
+/** 특정 퀘스트가 이 아이템을 요구하는 내역 */
+export interface QuestNeed {
+  taskName: string;
+  trader: string;
+  count: number;
+  foundInRaid: boolean;
+  minLevel: number;
+  kappa: boolean;
+}
+
+/** 퀘스트에 필요한 아이템 (여러 퀘스트 요구를 아이템 단위로 집계) */
+export interface QuestItem {
+  id: string;
+  name: string;
+  shortName: string;
+  searchText: string;
+  iconLink: string | null;
+  width: number;
+  height: number;
+  /** 전체 퀘스트 합산 필요 수량 */
+  totalCount: number;
+  /** 그중 현장 획득(FIR) 필요 수량 */
+  firCount: number;
+  /** 카파 컨테이너 퀘스트에 쓰이는지 */
+  kappa: boolean;
+  needs: QuestNeed[];
+}

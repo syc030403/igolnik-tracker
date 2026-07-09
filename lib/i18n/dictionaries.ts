@@ -9,6 +9,16 @@ export interface Dict {
   navMarket: string;
   navQuest: string;
   soon: string;
+  questTitle: string;
+  questTotal: string;
+  questFir: string;
+  questFirOnly: string;
+  questKappaOnly: string;
+  questNeededIn: string;
+  questLevel: string;
+  metaQuestTitle: string;
+  metaQuestDesc: string;
+  h1Quest: string;
   langAria: string;
   adLabel: string;
   adblockNotice: string;
@@ -97,6 +107,16 @@ const ko: Dict = {
   navMarket: "시세",
   navQuest: "퀘스트템",
   soon: "SOON",
+  questTitle: "퀘스트 필요 아이템",
+  questTotal: "필요 수량",
+  questFir: "현장 획득",
+  questFirOnly: "현장 획득만",
+  questKappaOnly: "카파 전용",
+  questNeededIn: "필요 퀘스트",
+  questLevel: "Lv",
+  metaQuestTitle: "타르코프 퀘스트템 — 퀘스트별 필요 아이템·수량·현장획득",
+  metaQuestDesc: "Escape from Tarkov 퀘스트에 필요한 아이템 체크리스트. 아이템별 총 필요 수량, 현장 획득(FIR) 여부, 어느 퀘스트에 쓰이는지 한눈에.",
+  h1Quest: "타르코프 퀘스트 필요 아이템 목록",
   langAria: "언어 선택",
   adLabel: "AD",
   adblockNotice: "광고 차단이 감지됐어요. 이 사이트는 광고 수익으로 무료 운영됩니다. 허용해 주시면 큰 도움이 됩니다.",
@@ -196,6 +216,16 @@ const en: Dict = {
   navMarket: "Market",
   navQuest: "Quest items",
   soon: "SOON",
+  questTitle: "Quest items",
+  questTotal: "Needed",
+  questFir: "Found in raid",
+  questFirOnly: "FIR only",
+  questKappaOnly: "Kappa only",
+  questNeededIn: "Needed for",
+  questLevel: "Lv",
+  metaQuestTitle: "Tarkov Quest Items — Required Items, Counts & Found-in-Raid",
+  metaQuestDesc: "Escape from Tarkov quest item checklist. Total count needed per item, Found-in-Raid (FIR) requirement, and which quests use it.",
+  h1Quest: "Tarkov quest required items checklist",
   langAria: "Select language",
   adLabel: "AD",
   adblockNotice: "We detected an ad blocker. This site is kept free by ad revenue — allowing ads helps a lot.",
@@ -296,6 +326,16 @@ const ja: Dict = {
   navMarket: "相場",
   navQuest: "タスク品",
   soon: "近日",
+  questTitle: "タスク必要アイテム",
+  questTotal: "必要数",
+  questFir: "レイド内取得",
+  questFirOnly: "FIRのみ",
+  questKappaOnly: "カッパ限定",
+  questNeededIn: "必要なタスク",
+  questLevel: "Lv",
+  metaQuestTitle: "タルコフ タスクアイテム — 必要アイテム・数量・レイド内取得",
+  metaQuestDesc: "Escape from Tarkov タスク必要アイテムのチェックリスト。アイテムごとの必要総数、レイド内取得(FIR)の要否、どのタスクで使うかを一覧。",
+  h1Quest: "タルコフ タスク必要アイテム一覧",
   langAria: "言語を選択",
   adLabel: "AD",
   adblockNotice: "広告ブロックを検出しました。本サイトは広告収益で無料運営しています。許可いただけると助かります。",
@@ -396,6 +436,16 @@ const ru: Dict = {
   navMarket: "Барахолка",
   navQuest: "Квестовые",
   soon: "СКОРО",
+  questTitle: "Квестовые предметы",
+  questTotal: "Нужно",
+  questFir: "Найдено в рейде",
+  questFirOnly: "Только FIR",
+  questKappaOnly: "Только Каппа",
+  questNeededIn: "Для квестов",
+  questLevel: "Ур",
+  metaQuestTitle: "Квестовые предметы Таркова — нужные предметы, количество, найдено в рейде",
+  metaQuestDesc: "Чек-лист квестовых предметов Escape from Tarkov. Общее нужное количество, требование «найдено в рейде» (FIR) и для каких квестов.",
+  h1Quest: "Список квестовых предметов Таркова",
   langAria: "Выбор языка",
   adLabel: "AD",
   adblockNotice: "Обнаружен блокировщик рекламы. Сайт бесплатен за счёт рекламы — отключение блокировщика очень помогает.",
@@ -496,6 +546,16 @@ const zh: Dict = {
   navMarket: "行情",
   navQuest: "任务物品",
   soon: "即将上线",
+  questTitle: "任务所需物品",
+  questTotal: "需求量",
+  questFir: "战局内获取",
+  questFirOnly: "仅限FIR",
+  questKappaOnly: "仅卡帕",
+  questNeededIn: "所需任务",
+  questLevel: "等级",
+  metaQuestTitle: "塔科夫任务物品 — 所需物品、数量与战局内获取",
+  metaQuestDesc: "逃离塔科夫任务所需物品清单。每种物品的总需求量、是否需要战局内获取(FIR)，以及用于哪些任务。",
+  h1Quest: "塔科夫任务所需物品清单",
   langAria: "选择语言",
   adLabel: "AD",
   adblockNotice: "检测到广告拦截。本站依靠广告收益免费运营，关闭拦截将对我们很有帮助。",
