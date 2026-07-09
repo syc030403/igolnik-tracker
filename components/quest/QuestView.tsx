@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { Fragment, useMemo, useState } from "react";
 import AdBanner from "@/components/AdBanner";
+import ItemIcon from "@/components/ItemIcon";
 import { useI18n } from "@/components/LocaleProvider";
 import { useSearch } from "@/components/SearchProvider";
-import { SHOW_ITEM_ICONS } from "@/lib/flags";
 import { normalizeSearch } from "@/lib/tarkov/aliases";
 import type { QuestItem } from "@/lib/tarkov/types";
 import styles from "./QuestView.module.css";
@@ -68,21 +67,7 @@ export default function QuestView({ items }: { items: QuestItem[] }) {
               onClick={() => setExpandedId(expandedId === it.id ? null : it.id)}
               aria-expanded={expandedId === it.id}
             >
-              <div className={styles.icon}>
-                {SHOW_ITEM_ICONS && it.iconLink ? (
-                  <Image
-                    src={it.iconLink}
-                    alt={it.name}
-                    width={46}
-                    height={46}
-                    unoptimized
-                    loading="lazy"
-                    style={{ objectFit: "contain" }}
-                  />
-                ) : (
-                  <span className={styles.iconFallback}>{it.shortName.slice(0, 5)}</span>
-                )}
-              </div>
+              <ItemIcon src={it.iconLink} alt={it.name} short={it.shortName} />
               <div className={styles.names}>
                 <span className={styles.nameKr}>{it.name}</span>
                 <span className={styles.nameEnRow}>

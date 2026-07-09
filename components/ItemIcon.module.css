@@ -1,0 +1,22 @@
+.icon {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border: 1px solid var(--border-3);
+  background: var(--surface-chip);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fallback {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: #7a7866;
+  letter-spacing: 0.02em;
+  text-align: center;
+  padding: 2px;
+}
