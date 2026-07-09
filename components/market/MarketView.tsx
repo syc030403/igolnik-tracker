@@ -126,7 +126,18 @@ export default function MarketView({
             >
               <div className={styles.icon}>
                 {SHOW_ITEM_ICONS && it.iconLink ? (
-                  <Image src={it.iconLink} alt={it.name} width={46} height={46} unoptimized={false} />
+                  // 아이콘은 이미 최적화된 webp(약 2KB)이고 수천 종이라
+                  // Vercel 이미지 최적화(할당량 제한)를 태우지 않고 CDN에서 직접 로드.
+                  // 총기처럼 가로로 긴 아이콘은 contain으로 비율 유지.
+                  <Image
+                    src={it.iconLink}
+                    alt={it.name}
+                    width={46}
+                    height={46}
+                    unoptimized
+                    loading="lazy"
+                    style={{ objectFit: "contain" }}
+                  />
                 ) : (
                   <span className={styles.iconFallback}>{it.shortName.slice(0, 5)}</span>
                 )}
