@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import AdBanner from "@/components/AdBanner";
 import DataError from "@/components/DataError";
+import GuideSection from "@/components/GuideSection";
 import MarketView from "@/components/market/MarketView";
 import { getDict } from "@/lib/i18n/dictionaries";
+import { getGuide } from "@/lib/i18n/guides";
 import { LOCALES, isLocale, localePath, type Locale } from "@/lib/i18n/locales";
 import { getMarketItems } from "@/lib/tarkov/market";
 import type { MarketItem } from "@/lib/tarkov/types";
@@ -53,6 +55,7 @@ export default async function MarketPvePage({ params }: { params: Promise<{ lang
       <main className={styles.main}>
         <h1 className={styles.srOnly}>{dict.h1Pve}</h1>
         {items ? <MarketView items={items} mode="pve" /> : <DataError title={dict.errTitle} desc={dict.errDesc} />}
+        <GuideSection guide={getGuide(locale, "market")} />
       </main>
     </>
   );

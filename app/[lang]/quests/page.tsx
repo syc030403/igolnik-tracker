@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import AdBanner from "@/components/AdBanner";
 import DataError from "@/components/DataError";
+import GuideSection from "@/components/GuideSection";
 import QuestView from "@/components/quest/QuestView";
 import { getDict } from "@/lib/i18n/dictionaries";
+import { getGuide } from "@/lib/i18n/guides";
 import { LOCALES, isLocale, localePath, type Locale } from "@/lib/i18n/locales";
 import { getQuestItems } from "@/lib/tarkov/quests";
 import type { QuestItem } from "@/lib/tarkov/types";
@@ -58,6 +60,7 @@ export default async function QuestsPage({ params }: { params: Promise<{ lang: s
         ) : (
           <DataError title={dict.errTitle} desc={dict.errDesc} />
         )}
+        <GuideSection guide={getGuide(locale, "quests")} />
       </main>
     </>
   );

@@ -10,6 +10,7 @@ import SideRails from "@/components/SideRails";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { SearchProvider } from "@/components/SearchProvider";
 import { ADSENSE_CLIENT } from "@/lib/ads";
+import { getAbout } from "@/lib/i18n/about";
 import { getDict } from "@/lib/i18n/dictionaries";
 import { getPrivacy } from "@/lib/i18n/privacy";
 import { LOCALES, isLocale, localePath, type Locale } from "@/lib/i18n/locales";
@@ -118,6 +119,8 @@ export default async function RootLayout({
               notice={dict.footerNotice}
               privacyHref={localePath(lang, "/privacy")}
               privacyLabel={privacy.navLabel}
+              aboutHref={localePath(lang, "/about")}
+              aboutLabel={getAbout(lang).navLabel}
             />
           </SearchProvider>
         </LocaleProvider>

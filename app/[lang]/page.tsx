@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import AdBanner from "@/components/AdBanner";
 import DataError from "@/components/DataError";
 import AmmoView from "@/components/ammo/AmmoView";
+import GuideSection from "@/components/GuideSection";
 import { getDict } from "@/lib/i18n/dictionaries";
 import { LOCALES, isLocale, localePath, type Locale } from "@/lib/i18n/locales";
+import { getGuide } from "@/lib/i18n/guides";
 import { getAmmoGroups } from "@/lib/tarkov/ammo";
 import type { AmmoGroup } from "@/lib/tarkov/types";
 import styles from "./page.module.css";
@@ -57,6 +59,7 @@ export default async function AmmoPage({ params }: { params: Promise<{ lang: str
       <main className={styles.main}>
         <h1 className={styles.srOnly}>{dict.h1Home}</h1>
         {groups ? <AmmoView groups={groups} /> : <DataError title={dict.errTitle} desc={dict.errDesc} />}
+        <GuideSection guide={getGuide(locale, "ammo")} />
       </main>
     </>
   );

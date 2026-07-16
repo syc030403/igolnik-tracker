@@ -39,3 +39,12 @@
   margin: 0 0 8px;
   word-break: break-word;
 }
+
+.list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.list li {
+  margin-bottom: 6px;
+}

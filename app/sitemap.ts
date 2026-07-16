@@ -12,6 +12,7 @@ const PATHS: { path: string; priority: number }[] = [
     { path: `/market/pve/${c.slug}`, priority: 0.7 },
   ]),
   { path: "/quests", priority: 0.8 },
+  { path: "/about", priority: 0.4 },
   { path: "/privacy", priority: 0.3 },
 ];
 

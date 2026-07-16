@@ -5,16 +5,23 @@ export default function Footer({
   notice,
   privacyHref,
   privacyLabel,
+  aboutHref,
+  aboutLabel,
 }: {
   notice: string;
   privacyHref: string;
   privacyLabel: string;
+  aboutHref: string;
+  aboutLabel: string;
 }) {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <p className={styles.notice}>{notice}</p>
         <div className={styles.links}>
+          <Link className={styles.privacy} href={aboutHref}>
+            {aboutLabel}
+          </Link>
           <Link className={styles.privacy} href={privacyHref}>
             {privacyLabel}
           </Link>
